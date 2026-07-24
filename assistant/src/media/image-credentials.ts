@@ -12,6 +12,40 @@ import { PLATFORM_PROVIDER_META } from "../providers/platform-proxy/constants.js
 import { resolveManagedProxyContext } from "../providers/platform-proxy/context.js";
 import { getProviderKeyAsync } from "../security/secure-keys.js";
 import type { ImageGenCredentials, ImageGenProvider } from "./types.js";
+import { providerForImageModelPrefix, providerForModel } from "./types.js";
+
+/**
+ * Resolve which backend serves an image request and whether it runs managed.
+ *
+ * `vellum` is unconditionally managed and carries no backend of its own: the
+ * backend derives from the model prefix (`gpt-*`/`dall-e-*` proxy OpenAI,
+ * anything else proxies Gemini), so one managed provider spans both runtime
+ * proxies. Managed routing never falls back to a stored BYOK key, and a BYOK
+ * provider never falls back to the proxy — billing follows the explicit
+ * provider choice. Other providers use the caller's key, with an explicit
+ * model override re-routing to the model's backend. A legacy
+ * `mode: "managed"` also routes managed.
+ */
+export function resolveImageGenRouting(
+  svc: { provider: string; model: string; mode?: string },
+  modelOverride?: unknown,
+): { backendProvider: ImageGenProvider; managed: boolean } {
+  const managed = svc.provider === "vellum" || svc.mode === "managed";
+  if (svc.provider === "vellum") {
+    const model =
+      typeof modelOverride === "string" && modelOverride
+        ? modelOverride
+        : svc.model;
+    return { backendProvider: providerForImageModelPrefix(model), managed };
+  }
+  return {
+    backendProvider: providerForModel(
+      modelOverride,
+      svc.provider as ImageGenProvider,
+    ),
+    managed,
+  };
+}
 
 /**
  * Resolve credentials for an image-generation request.
