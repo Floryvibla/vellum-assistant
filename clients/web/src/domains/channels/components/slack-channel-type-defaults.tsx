@@ -17,12 +17,11 @@ interface BucketRow {
 }
 
 /**
- * The two default buckets, in cascade order. "Channels" is the adapter-wide
- * default (every room); "Direct messages" overrides it for 1:1 DMs only. Only
- * 1:1 DMs carry a `channelType` (`"dm"`) at tool time — the gateway collapses
- * group DMs (mpim), private, and public rooms into `"channel"` (no type), so a
- * `channel_type` cell for those never matches. Group DMs therefore follow the
- * Channels default, and public/private can't be split here at all.
+ * The two default buckets, in cascade order: "Channels" is the adapter-wide
+ * default (every room), "Direct messages" overrides it for 1:1 DMs only. See
+ * {@link ChannelDefaultBucket} in `slack-channel-overrides` for why only 1:1 DMs
+ * carry a `channelType` at tool time — group DMs, private, and public rooms all
+ * collapse to `"channel"`, so they follow the Channels default.
  */
 const BUCKET_ROWS: readonly BucketRow[] = [
   {
@@ -89,7 +88,9 @@ export function SlackChannelTypeDefaults({
           </Typography>
         </div>
       </Card.Header>
-      <Card.Body>
+      {/* Rows carry their own py-3, so keep the body's vertical padding small
+          to avoid a doubled gap above the first / below the last row. */}
+      <Card.Body className="py-1">
         {BUCKET_ROWS.map(({ bucket, icon: Icon, title, description }) => {
           // DMs fall through to the Channels default, then the global default;
           // Channels falls through to the global default.
