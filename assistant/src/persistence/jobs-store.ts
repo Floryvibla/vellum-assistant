@@ -13,6 +13,7 @@ import {
   isQdrantBreakerOpen,
   shouldAllowQdrantProbe,
 } from "./embeddings/qdrant-circuit-breaker.js";
+import { isLifecycleQuiesced } from "./lifecycle-quiesce.js";
 import { rawMemoryAll, rawMemoryChanges } from "./raw-query.js";
 import { memoryJobs } from "./schema/index.js";
 
@@ -645,6 +646,13 @@ export function claimMemoryJobs(
     return [];
   }
 
+  // Drain gate: while a quiesce lease is active, claim nothing so in-flight
+  // jobs finish and the queue drains to a stop. Enqueues are unaffected;
+  // claims resume when the lease expires. Fail-open via the lease read.
+  if (isLifecycleQuiesced()) {
+    return [];
+  }
+
   const db = memoryDb();
   const now = Date.now();
   const restrictFilter = restrictToTypes
@@ -893,6 +901,26 @@ export function resetRunningJobsToPending(): number {
     .where(eq(memoryJobs.status, "running"))
     .run();
   return rawMemoryChanges();
+}
+
+/** Currently-running memory jobs, oldest first — the drain-status view. */
+export function listRunningMemoryJobs(): Array<{
+  id: string;
+  type: string;
+  startedAt: number | null;
+}> {
+  const db = memoryDb();
+  return db
+    .select({
+      id: memoryJobs.id,
+      type: memoryJobs.type,
+      startedAt: memoryJobs.startedAt,
+    })
+    .from(memoryJobs)
+    .where(eq(memoryJobs.status, "running"))
+    .orderBy(asc(memoryJobs.startedAt))
+    .limit(20)
+    .all();
 }
 
 /**
