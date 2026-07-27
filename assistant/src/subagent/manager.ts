@@ -528,8 +528,13 @@ export class SubagentManager {
     // Subagents execute as background child conversations, but their tool
     // permissions must still be scoped to the actor that spawned them. Without
     // this, tool execution falls back to `unknown` trust and guardian-owned
-    // desktop turns get denied as unverified.
-    if (parentConversation?.trustContext) {
+    // desktop turns get denied as unverified. An explicit config trust context
+    // wins over parent inheritance: a parent that stamps trust per-turn (the
+    // live-voice bridge) has already cleared it by the time a detached spawn
+    // reads it, so its spawner resolves trust itself.
+    if (config.trustContext) {
+      conversation.setTrustContext({ ...config.trustContext });
+    } else if (parentConversation?.trustContext) {
       conversation.setTrustContext({ ...parentConversation.trustContext });
     }
     const parentAuthContext = parentConversation?.getAuthContext();
@@ -567,11 +572,20 @@ export class SubagentManager {
       conversation.setSubagentAllowedTools(new Set(roleConfig.allowedTools));
     }
 
-    // A read-only subagent (e.g. the live-voice background continuation) refuses
-    // side-effecting tools regardless of trust class; the executor gate rejects
+    // A read-only subagent refuses side-effecting tools regardless of trust
+    // class; the executor gate rejects
     // any such dispatch and they are kept off the model's tool surface.
     if (config.denySideEffectTools) {
       conversation.setSubagentDenySideEffects(true);
+    }
+
+    // A synchronous child's only parent channel is the awaiting caller: a
+    // mid-run notify_parent would inject a user-role turn into the live
+    // parent conversation (starting an unsolicited parent run) instead of
+    // reaching that caller, so suppress it — the same reason runSubagent
+    // skips the terminal parent-injection on this path.
+    if (opts?.synchronous) {
+      conversation.setSubagentSuppressParentNotifications(true);
     }
 
     // Pre-activate skills defined by the role config, merged with any caller-provided skill IDs.

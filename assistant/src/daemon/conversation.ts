@@ -344,6 +344,15 @@ export class Conversation {
    */
   subagentDenySideEffects?: boolean;
   /**
+   * When true, mid-run subagent → parent notifications (`notify_parent`) are
+   * suppressed for this child. Set on synchronous (spawnAndAwait) subagents:
+   * the awaiting caller is their only parent channel, so injecting a
+   * user-role turn into the live parent mid-await would start an unsolicited
+   * parent run. Checked in `notifyParentFromChild`.
+   * @internal
+   */
+  subagentSuppressParentNotifications?: boolean;
+  /**
    * Tool names a subagent attempted but that its role allowlist
    * ({@link subagentAllowedTools}) denied. Recorded by the tool executor;
    * surfaced to the parent in the terminal notification so it can re-spawn with
@@ -1461,6 +1470,10 @@ export class Conversation {
 
   setSubagentDenySideEffects(deny: boolean): void {
     this.subagentDenySideEffects = deny;
+  }
+
+  setSubagentSuppressParentNotifications(suppress: boolean): void {
+    this.subagentSuppressParentNotifications = suppress;
   }
 
   /**
