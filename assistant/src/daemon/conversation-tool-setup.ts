@@ -13,6 +13,7 @@ import {
 } from "../channels/types.js";
 import { getIsPlatform } from "../config/env-registry.js";
 import { getConfig } from "../config/loader.js";
+import { isMemoryEnabled } from "../config/memory-v3-gate.js";
 import type { PermissionPrompter } from "../permissions/prompter.js";
 import type { SecretPrompter } from "../permissions/secret-prompter.js";
 import { getBindingByConversation } from "../persistence/external-conversation-store.js";
@@ -722,7 +723,7 @@ export function isToolActiveForContext(
   }
   if (name === "remember") {
     try {
-      return getConfig().memory?.enabled !== false;
+      return isMemoryEnabled(getConfig());
     } catch {
       return true;
     }
