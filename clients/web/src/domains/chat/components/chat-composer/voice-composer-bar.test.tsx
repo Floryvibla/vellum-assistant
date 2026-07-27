@@ -3,10 +3,8 @@
  *
  * The bar is purely presentational, so tests drive it prop-by-prop: state
  * label mapping, send-button enablement, callback wiring, and accessibility
- * attributes. The embedded `VoiceTimelineWaveform` renders a real canvas —
- * happy-dom's `getContext("2d")` returns `null`, which that component
- * handles by skipping its draw loop, so no canvas/rAF harness is needed
- * here (its rendering behavior is covered by its own test file).
+ * attributes. The embedded `VoiceListeningWaves` is SVG + a rAF loop writing
+ * a CSS var — inert under happy-dom, so no harness is needed here.
  */
 
 import { afterEach, describe, expect, mock, test } from "bun:test";
@@ -150,6 +148,14 @@ describe("VoiceComposerBar — stop response", () => {
     expect(onStop).toHaveBeenCalledTimes(1);
   });
 
+  test("■ takes the send slot while speaking (send absent)", () => {
+    renderBar("speaking", { onStop: () => {} });
+    expect(
+      screen.getByRole("button", { name: "Stop assistant response" }),
+    ).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Send now" })).toBeNull();
+  });
+
   test("no ■ outside speaking, or without onStop (manual session)", () => {
     const { unmount } = renderBar("listening", { onStop: () => {} });
     expect(
@@ -187,9 +193,11 @@ describe("VoiceComposerBar — structure and accessibility", () => {
     expect(group).toBeTruthy();
   });
 
-  test("renders the timeline waveform canvas", () => {
+  test("renders the room's listening waves inline", () => {
     const { container } = renderBar("listening");
-    expect(container.querySelector("canvas")).toBeTruthy();
+    expect(
+      container.querySelector(".voice-listening-waves--inline"),
+    ).toBeTruthy();
   });
 
   test("both control buttons carry aria labels", () => {
