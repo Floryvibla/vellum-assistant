@@ -34,6 +34,10 @@ import { copyIdToClipboard } from "@/domains/chat/utils/copy-id-to-clipboard";
 import { channelSectionKey } from "@/domains/chat/utils/sidebar-group-collapse-storage";
 import { usePinnedAppsStore } from "@/stores/pinned-apps-store";
 import type { Conversation } from "@/types/conversation-types";
+import {
+    DEFAULT_GROUP_ICON,
+    getGroupIcon,
+} from "@/domains/chat/utils/group-icon-registry";
 import { getChannelIcon, getChannelLabel } from "@/utils/channel-presentation";
 import {
     Button,
@@ -465,6 +469,23 @@ export function AssistantSideMenu({
                   )}
                 </CollapsedGroupIcon>
               ))}
+              {sidebar.customGroups.map((group) => (
+                <CollapsedGroupIcon
+                  key={group.id}
+                  icon={getGroupIcon(group.icon) ?? DEFAULT_GROUP_ICON}
+                  label={group.name}
+                  disabled={group.conversations.length === 0}
+                  indicatorState={getGroupIndicatorState(group.conversations, processingConversationIds, attentionConversationIds)}
+                >
+                  {(close) => (
+                    <CollapsedGroupFlyout
+                      title={group.name}
+                      conversations={group.conversations}
+                      onClosePopover={close}
+                    />
+                  )}
+                </CollapsedGroupIcon>
+              ))}
             </div>
           ) : (
             <>
@@ -547,6 +568,7 @@ export function AssistantSideMenu({
                         <ConversationNavSection
                           key={group.id}
                           value={group.id}
+                          icon={getGroupIcon(group.icon)}
                           label={group.name}
                           /* The "…" button and the header's right-click menu
                              both render from `groupMenu`. */
