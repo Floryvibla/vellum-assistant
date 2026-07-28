@@ -24784,6 +24784,10 @@ paths:
                           anyOf:
                             - type: string
                             - type: "null"
+                        groupId:
+                          anyOf:
+                            - type: string
+                            - type: "null"
                         createdFromConversationId:
                           anyOf:
                             - type: string
@@ -24849,6 +24853,7 @@ paths:
                         - retryBackoffMs
                         - timeoutMs
                         - inferenceProfile
+                        - groupId
                         - createdFromConversationId
                         - createdFromConversationExists
                         - createdFromConversationArchivedAt
@@ -24991,6 +24996,10 @@ paths:
                         anyOf:
                           - type: string
                           - type: "null"
+                      groupId:
+                        anyOf:
+                          - type: string
+                          - type: "null"
                       createdFromConversationId:
                         anyOf:
                           - type: string
@@ -25056,6 +25065,7 @@ paths:
                       - retryBackoffMs
                       - timeoutMs
                       - inferenceProfile
+                      - groupId
                       - createdFromConversationId
                       - createdFromConversationExists
                       - createdFromConversationArchivedAt
@@ -25152,6 +25162,10 @@ paths:
                           anyOf:
                             - type: string
                             - type: "null"
+                        groupId:
+                          anyOf:
+                            - type: string
+                            - type: "null"
                         createdFromConversationId:
                           anyOf:
                             - type: string
@@ -25217,6 +25231,7 @@ paths:
                         - retryBackoffMs
                         - timeoutMs
                         - inferenceProfile
+                        - groupId
                         - createdFromConversationId
                         - createdFromConversationExists
                         - createdFromConversationArchivedAt
@@ -25310,6 +25325,10 @@ paths:
                         anyOf:
                           - type: string
                           - type: "null"
+                      groupId:
+                        anyOf:
+                          - type: string
+                          - type: "null"
                       createdFromConversationId:
                         anyOf:
                           - type: string
@@ -25375,6 +25394,7 @@ paths:
                       - retryBackoffMs
                       - timeoutMs
                       - inferenceProfile
+                      - groupId
                       - createdFromConversationId
                       - createdFromConversationExists
                       - createdFromConversationArchivedAt
@@ -25527,6 +25547,10 @@ paths:
                           anyOf:
                             - type: string
                             - type: "null"
+                        groupId:
+                          anyOf:
+                            - type: string
+                            - type: "null"
                         createdFromConversationId:
                           anyOf:
                             - type: string
@@ -25592,6 +25616,7 @@ paths:
                         - retryBackoffMs
                         - timeoutMs
                         - inferenceProfile
+                        - groupId
                         - createdFromConversationId
                         - createdFromConversationExists
                         - createdFromConversationArchivedAt
@@ -25688,6 +25713,10 @@ paths:
                           anyOf:
                             - type: string
                             - type: "null"
+                        groupId:
+                          anyOf:
+                            - type: string
+                            - type: "null"
                         createdFromConversationId:
                           anyOf:
                             - type: string
@@ -25753,6 +25782,7 @@ paths:
                         - retryBackoffMs
                         - timeoutMs
                         - inferenceProfile
+                        - groupId
                         - createdFromConversationId
                         - createdFromConversationExists
                         - createdFromConversationArchivedAt
@@ -25849,6 +25879,10 @@ paths:
                           anyOf:
                             - type: string
                             - type: "null"
+                        groupId:
+                          anyOf:
+                            - type: string
+                            - type: "null"
                         createdFromConversationId:
                           anyOf:
                             - type: string
@@ -25914,6 +25948,7 @@ paths:
                         - retryBackoffMs
                         - timeoutMs
                         - inferenceProfile
+                        - groupId
                         - createdFromConversationId
                         - createdFromConversationExists
                         - createdFromConversationArchivedAt
@@ -26147,6 +26182,10 @@ paths:
                           anyOf:
                             - type: string
                             - type: "null"
+                        groupId:
+                          anyOf:
+                            - type: string
+                            - type: "null"
                         createdFromConversationId:
                           anyOf:
                             - type: string
@@ -26212,6 +26251,7 @@ paths:
                         - retryBackoffMs
                         - timeoutMs
                         - inferenceProfile
+                        - groupId
                         - createdFromConversationId
                         - createdFromConversationExists
                         - createdFromConversationArchivedAt
