@@ -12,10 +12,15 @@
  *
  * Reading needs no gate: an older daemon simply omits `icon` from
  * `GET /v1/groups` and the sidebar falls back to its default rendering.
+ *
+ * MIN_VERSION names the next scheduled cut from main. A hotfix release
+ * branches from the latest release tag instead, so a hotfix that claims
+ * this version number would NOT carry the feature; if that happens,
+ * retarget this gate to the next scheduled cut's number.
  */
 import { useAssistantSupports } from "./utils";
 
-export const MIN_VERSION = "0.12.0";
+export const MIN_VERSION = "0.11.1";
 
 /**
  * Returns `true` when the active assistant persists group icons. Subscribes
