@@ -463,6 +463,7 @@ import { migrateDropScheduleSkillScriptHandoff } from "./migrations/352-drop-sch
 import { migrateAddLlmUsageConversationType } from "./migrations/353-add-llm-usage-conversation-type.js";
 import { migrateBackfillAppConversationLineage } from "./migrations/354-backfill-app-conversation-lineage.js";
 import { migrateAddScheduleGroupId } from "./migrations/355-add-schedule-group-id.js";
+import { migrateAddSubagentParentToolUseId } from "./migrations/356-add-subagent-parent-tool-use-id.js";
 import type { MigrationStep } from "./migrations/run-migrations.js";
 
 export const migrationSteps: MigrationStep[] = [
@@ -1483,4 +1484,5 @@ export const migrationSteps: MigrationStep[] = [
   migrateAddLlmUsageConversationType,
   migrateBackfillAppConversationLineage,
   migrateAddScheduleGroupId,
+  migrateAddSubagentParentToolUseId,
 ];
