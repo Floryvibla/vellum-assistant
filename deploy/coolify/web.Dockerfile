@@ -13,6 +13,6 @@ FROM nginx:1.27.5-alpine
 
 COPY deploy/coolify/web-nginx.conf /etc/nginx/conf.d/default.conf
 COPY deploy/coolify/web-entrypoint.sh /docker-entrypoint.d/99-vellum-web.sh
-COPY --from=builder /app/clients/web/dist /usr/share/nginx/html
+COPY --from=builder /app/clients/web/dist /usr/share/nginx/html/assistant
 
 RUN chmod +x /docker-entrypoint.d/99-vellum-web.sh
