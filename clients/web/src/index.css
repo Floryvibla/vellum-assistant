@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 @import "@vellumai/design-library/tokens.css";
 
@@ -10,9 +11,219 @@
  * emission order. */
 @custom-variant native-ios (&:is(:root[data-native-platform="ios"] *));
 
+/* Sovereign Neural Minimal — global token remap for the existing design library. */
+:root,
+[data-theme="light"] {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Hanken Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --app-spacing-xs: 4px;
+  --app-spacing-sm: 8px;
+  --app-spacing-md: 12px;
+  --app-spacing-lg: 16px;
+  --app-spacing-xl: 24px;
+  --app-spacing-xxl: 32px;
+  --app-spacing-xxxl: 48px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-xxl: 24px;
+  --radius-pill: 9999px;
+  --background: #f9f9f8;
+  --foreground: #191c1c;
+  --surface-base: #f9f9f8;
+  --surface-overlay: #ffffff;
+  --surface-active: #edeeed;
+  --surface-lift: #ffffff;
+  --surface-hover: rgba(0, 53, 53, 0.04);
+  --surface-sunken: #f3f4f3;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f3f4f3;
+  --surface-container: #edeeed;
+  --surface-container-high: #e7e8e7;
+  --surface-container-highest: #e1e3e2;
+  --primary: #003535;
+  --primary-base: #003535;
+  --primary-hover: #0d4d4d;
+  --primary-active: #104f4f;
+  --primary-disabled: #d9dad9;
+  --primary-second-hover: #006a62;
+  --secondary: #006a62;
+  --secondary-fixed: #84f5e8;
+  --secondary-fixed-dim: #66d9cc;
+  --tertiary: #223231;
+  --outline: #707978;
+  --outline-variant: #bfc8c8;
+  --surface-tint: #2e6767;
+  --border-base: #e1e3e2;
+  --border-disabled: #edeeed;
+  --border-element: #bfc8c8;
+  --border-hover: #d9dad9;
+  --border-active: #003535;
+  --border-subtle: #e7e8e7;
+  --content-default: #191c1c;
+  --content-emphasised: #003535;
+  --content-secondary: #404848;
+  --content-tertiary: #707978;
+  --content-quiet: #707978;
+  --content-strong: #003535;
+  --content-faint: #bfc8c8;
+  --content-disabled: #bfc8c8;
+  --content-inset: #ffffff;
+  --system-positive-strong: #006a62;
+  --system-positive-weak: #d6f3ef;
+  --system-negative-strong: #ba1a1a;
+  --system-negative-hover: #93000a;
+  --system-negative-weak: #ffdad6;
+  --system-mid-strong: #8c6a00;
+  --system-mid-weak: #fff1c2;
+  --system-info-strong: #2e6767;
+  --system-info-weak: #d7ecec;
+  --feed-nudge-strong: #006a62;
+  --feed-nudge-weak: #d6f3ef;
+  --feed-digest-strong: #2e6767;
+  --feed-digest-weak: #d7ecec;
+  --feed-thread-strong: #223231;
+  --feed-thread-weak: #d4e6e5;
+  --credits-accent: #006a62;
+  --ring: color-mix(in srgb, #66d9cc 38%, transparent);
+  --border-overlay: #e1e3e2;
+  --ghost-hover: #f3f4f3;
+  --ghost-pressed: #edeeed;
+  --field-bg: color-mix(in srgb, #ffffff 84%, #84f5e8 16%);
+  --field-border: color-mix(in srgb, #bfc8c8 72%, #66d9cc 28%);
+  --tag-bg-neutral: #e1e3e2;
+  --shadow-sm: 0 8px 24px rgba(13, 77, 77, 0.06);
+  --shadow-md: 0 16px 40px rgba(13, 77, 77, 0.08);
+  --shadow-lg: 0 24px 80px rgba(13, 77, 77, 0.12);
+  --shadow-popover:
+    0 24px 80px rgba(13, 77, 77, 0.12), 0 8px 24px rgba(13, 77, 77, 0.08);
+  --sovereign-glass: rgba(255, 255, 255, 0.72);
+  --sovereign-scrollbar: rgba(64, 72, 72, 0.26);
+  --sovereign-scrollbar-hover: rgba(0, 53, 53, 0.42);
+}
+
+[data-theme="dark"],
+[data-theme="velvet"] {
+  --background: #0f1717;
+  --foreground: #f0f1f0;
+  --surface-base: #0f1717;
+  --surface-overlay: #182120;
+  --surface-active: #223231;
+  --surface-lift: #16201f;
+  --surface-hover: rgba(152, 209, 208, 0.08);
+  --surface-sunken: #101918;
+  --surface-container-lowest: #16201f;
+  --surface-container-low: #182423;
+  --surface-container: #1d2b2a;
+  --surface-container-high: #223231;
+  --surface-container-highest: #2a3b3a;
+  --primary: #98d1d0;
+  --primary-base: #0d4d4d;
+  --primary-hover: #156060;
+  --primary-active: #223231;
+  --primary-disabled: #2a3b3a;
+  --primary-second-hover: #84f5e8;
+  --secondary: #66d9cc;
+  --secondary-fixed: #84f5e8;
+  --secondary-fixed-dim: #66d9cc;
+  --tertiary: #b8cac9;
+  --outline: #6f8382;
+  --outline-variant: #324544;
+  --surface-tint: #98d1d0;
+  --border-base: #243534;
+  --border-disabled: #1b2625;
+  --border-element: #3f5a58;
+  --border-hover: #324544;
+  --border-active: #98d1d0;
+  --border-subtle: #223231;
+  --content-default: #f0f1f0;
+  --content-emphasised: #ffffff;
+  --content-secondary: #c4d2d1;
+  --content-tertiary: #9cb0af;
+  --content-quiet: #9cb0af;
+  --content-strong: #ffffff;
+  --content-faint: #6f8382;
+  --content-disabled: #58706e;
+  --content-inset: #0f1717;
+  --system-positive-strong: #66d9cc;
+  --system-positive-weak: #123736;
+  --system-negative-strong: #ffb4ab;
+  --system-negative-hover: #ffdad6;
+  --system-negative-weak: #5c1b1b;
+  --system-mid-strong: #f0cf70;
+  --system-mid-weak: #4b3e16;
+  --system-info-strong: #98d1d0;
+  --system-info-weak: #183938;
+  --feed-nudge-strong: #84f5e8;
+  --feed-nudge-weak: #123736;
+  --feed-digest-strong: #98d1d0;
+  --feed-digest-weak: #183938;
+  --feed-thread-strong: #d4e6e5;
+  --feed-thread-weak: #223231;
+  --credits-accent: #66d9cc;
+  --ring: color-mix(in srgb, #66d9cc 42%, transparent);
+  --border-overlay: #324544;
+  --ghost-hover: #1d2b2a;
+  --ghost-pressed: #223231;
+  --field-bg: color-mix(in srgb, #16201f 86%, #84f5e8 14%);
+  --field-border: color-mix(in srgb, #3f5a58 72%, #66d9cc 28%);
+  --tag-bg-neutral: #223231;
+  --shadow-sm: 0 12px 32px rgba(0, 0, 0, 0.22);
+  --shadow-md: 0 24px 56px rgba(0, 0, 0, 0.28);
+  --shadow-lg: 0 32px 96px rgba(0, 0, 0, 0.34);
+  --shadow-popover:
+    0 24px 80px rgba(0, 0, 0, 0.36), 0 12px 32px rgba(0, 0, 0, 0.24);
+  --sovereign-glass: rgba(22, 32, 31, 0.78);
+  --sovereign-scrollbar: rgba(152, 209, 208, 0.18);
+  --sovereign-scrollbar-hover: rgba(132, 245, 232, 0.34);
+}
+
+html {
+  background: var(--background);
+}
+
 /* Base element styles — theme-aware defaults inherited by all descendants. */
 body {
   color: var(--content-default);
+  background-color: var(--background);
+  background-image:
+    radial-gradient(
+      circle at 16% 14%,
+      color-mix(in srgb, var(--secondary-fixed-dim) 20%, transparent) 0%,
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 82% 10%,
+      color-mix(in srgb, var(--surface-tint) 18%, transparent) 0%,
+      transparent 24%
+    ),
+    linear-gradient(
+      180deg,
+      var(--background) 0%,
+      var(--surface-container-lowest) 100%
+    );
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+:focus-visible {
+  outline: 2px solid
+    color-mix(in srgb, var(--secondary-fixed-dim) 65%, transparent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--secondary-fixed-dim) 28%, transparent);
+  color: var(--content-emphasised);
 }
 
 /* Electron prechat onboarding typography — mirror the lighter DM Sans (Swift
@@ -42,17 +253,32 @@ body {
  * collapsible-slide-*) live in the library's tokens.css. */
 
 @keyframes indeterminate {
-  0% { width: 0%; margin-left: 0%; }
-  50% { width: 60%; margin-left: 20%; }
-  100% { width: 0%; margin-left: 100%; }
+  0% {
+    width: 0%;
+    margin-left: 0%;
+  }
+  50% {
+    width: 60%;
+    margin-left: 20%;
+  }
+  100% {
+    width: 0%;
+    margin-left: 100%;
+  }
 }
 
 @keyframes fadeInUp {
-  0% { transform: translateY(16px); opacity: 0; }
+  0% {
+    transform: translateY(16px);
+    opacity: 0;
+  }
   /* End at `none` (not translateY(0)) so the filled-forwards transform does
      not create a containing block — otherwise position:fixed descendants like
      the Dropdown menu anchor to this element instead of the viewport. */
-  100% { transform: none; opacity: 1; }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
 }
 
 /* View Plans takeover entrance — the route swaps straight onto a full-dark
@@ -60,8 +286,12 @@ body {
    The canvas fade is opacity-only: translating it would drag the page
    background along and expose whatever sits behind the route. */
 @keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .plans-takeover-canvas-enter {
@@ -82,16 +312,28 @@ body {
 /* Onboarding edge characters popping into place — a quick scale-up with a soft
    overshoot (paired with a spring-ish cubic-bezier at the call site). */
 @keyframes character-pop-in {
-  0% { transform: scale(0); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* Home Activity detail drawer (schedule / heartbeat / notification) sliding
    in from the right. Ends at `transform: none` for the same containing-block
    reason as fadeInUp above (the panel hosts fixed Dropdown/tooltip layers). */
 @keyframes drawer-slide-in {
-  0% { transform: translateX(16px); opacity: 0; }
-  100% { transform: none; opacity: 1; }
+  0% {
+    transform: translateX(16px);
+    opacity: 0;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
 }
 
 .home-detail-drawer {
@@ -100,37 +342,74 @@ body {
 }
 
 @keyframes typing-dot-pulse {
-  0%, 100% { opacity: 0.45; transform: scale(0.6); }
-  50% { opacity: 1; transform: scale(1); }
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.6);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* Avatar breathing — gentle scale pulse matching macOS
    AnimatedAvatarView.swift startBreathing() (2s in, 2s out). */
 @keyframes avatar-breathe-kf {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.03); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
 }
 
 @keyframes avatar-morph-scale {
-  0%, 100% { transform: scale(1, 1); }
-  25% { transform: scale(1.02, 0.99); }
-  50% { transform: scale(0.99, 1.02); }
-  75% { transform: scale(1.01, 0.99); }
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  25% {
+    transform: scale(1.02, 0.99);
+  }
+  50% {
+    transform: scale(0.99, 1.02);
+  }
+  75% {
+    transform: scale(1.01, 0.99);
+  }
 }
 
 @keyframes avatar-morph-rotate {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(0.86deg); }
-  50% { transform: rotate(0deg); }
-  75% { transform: rotate(-0.86deg); }
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(0.86deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  75% {
+    transform: rotate(-0.86deg);
+  }
 }
 
 /* BusyIndicator — mirrors macOS VBusyIndicator. A filled circle pulsing in
  * opacity (1→0.3) and scale (1→0.85) over 1s easeInOut. Used in
  * ActivityRunCard for active/thinking phases. */
 @keyframes busy-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.3; transform: scale(0.85); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(0.85);
+  }
 }
 
 .busy-indicator {
@@ -142,8 +421,14 @@ body {
  * component also holds it static via useReducedMotion; the media query is
  * defense-in-depth for callers that don't. */
 @keyframes voice-caret-blink {
-  0%, 50% { opacity: 1; }
-  50.01%, 100% { opacity: 0; }
+  0%,
+  50% {
+    opacity: 1;
+  }
+  50.01%,
+  100% {
+    opacity: 0;
+  }
 }
 
 .voice-caret-blink {
@@ -161,8 +446,12 @@ body {
  * mixes the surface toward `--foreground` so it reads in every theme:
  * lighter band in dark/velvet, darker in light. */
 @keyframes skeleton-shimmer {
-  from { background-position: 150% 0; }
-  to { background-position: -50% 0; }
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
 }
 
 .skeleton-shimmer {
@@ -200,8 +489,12 @@ body {
  * transcript scrolls to a message (e.g. opening a saved bookmark). Fades from
  * the active-surface tint back to transparent over 2s. */
 @keyframes message-highlight-flash {
-  0% { background-color: var(--surface-active); }
-  100% { background-color: transparent; }
+  0% {
+    background-color: var(--surface-active);
+  }
+  100% {
+    background-color: transparent;
+  }
 }
 
 .message-highlighted {
@@ -230,8 +523,12 @@ body {
  * creature reads as "asleep" during hatching. When the assistant becomes
  * active, swap the class for `.onboarding-avatar-awake`. */
 @keyframes morphPulse {
-  0% { transform: scale(0.9); }
-  100% { transform: scale(1.0); }
+  0% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .onboarding-avatar-pulse {
@@ -259,8 +556,14 @@ body {
 
 /* Billing onboarding modal — step content entrance */
 @keyframes onboarding-step-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Provisioning takeover — the assistant grows into a larger form when the
@@ -305,8 +608,15 @@ body {
 }
 
 @keyframes provision-placeholder-breathe {
-  0%, 100% { transform: scale(0.94); opacity: 0.65; }
-  50% { transform: scale(1.05); opacity: 1; }
+  0%,
+  100% {
+    transform: scale(0.94);
+    opacity: 0.65;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
 }
 
 /* Fades out on the same beat the creature reveals on, then costs nothing. */
@@ -344,20 +654,44 @@ body {
 /* The crouch is what makes this read as the creature pushing itself up rather
  * than as something being scaled. */
 @keyframes provision-grow {
-  0% { transform: scale(1); }
-  11% { transform: scale(1.03) scaleY(0.9); }
-  38% { transform: scale(1.3); }
-  50% { transform: scale(1.24); }
-  82% { transform: scale(1.49); }
-  100% { transform: scale(var(--provision-avatar-growth)); }
+  0% {
+    transform: scale(1);
+  }
+  11% {
+    transform: scale(1.03) scaleY(0.9);
+  }
+  38% {
+    transform: scale(1.3);
+  }
+  50% {
+    transform: scale(1.24);
+  }
+  82% {
+    transform: scale(1.49);
+  }
+  100% {
+    transform: scale(var(--provision-avatar-growth));
+  }
 }
 
 /* The shadow tightens as it leaves the ground and spreads as it lands. */
 @keyframes provision-grow-shadow {
-  0% { transform: scaleX(1); opacity: 0.85; }
-  18% { transform: scaleX(1.08); opacity: 1; }
-  45% { transform: scaleX(0.95); opacity: 0.6; }
-  100% { transform: scaleX(1.16); opacity: 1; }
+  0% {
+    transform: scaleX(1);
+    opacity: 0.85;
+  }
+  18% {
+    transform: scaleX(1.08);
+    opacity: 1;
+  }
+  45% {
+    transform: scaleX(0.95);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scaleX(1.16);
+    opacity: 1;
+  }
 }
 
 .provision-avatar-evolve.is-evolved .provision-avatar-current {
@@ -373,8 +707,12 @@ body {
  * stage has already reserved its height, so this fades in place with nothing
  * moving around it. */
 @keyframes provision-avatar-reveal {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* The takeover's arrival beat: the avatar, the surface color, and the blurred
@@ -422,13 +760,20 @@ body {
 }
 
 @keyframes provision-strain {
-  0% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
   18% {
     transform: scaleX(calc(1 + var(--provision-strain) * 0.35))
       scaleY(calc(1 - var(--provision-strain) * 0.75));
   }
-  44% { transform: scale(calc(1 + var(--provision-strain))); }
-  66%, 100% { transform: scale(1); }
+  44% {
+    transform: scale(calc(1 + var(--provision-strain)));
+  }
+  66%,
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* A third of every cycle is rest — that pause is what keeps it reading as
@@ -493,14 +838,14 @@ body {
  * on <html>. */
 :root {
   scrollbar-width: thin;
-  scrollbar-color: rgba(113, 128, 142, 0.35) transparent;
+  scrollbar-color: var(--sovereign-scrollbar) transparent;
 }
 
 :root *,
 :root *::before,
 :root *::after {
   scrollbar-width: thin;
-  scrollbar-color: rgba(113, 128, 142, 0.35) transparent;
+  scrollbar-color: var(--sovereign-scrollbar) transparent;
 }
 
 ::-webkit-scrollbar {
@@ -513,59 +858,19 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(113, 128, 142, 0.35);
+  background: var(--sovereign-scrollbar);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(113, 128, 142, 0.6);
+  background: var(--sovereign-scrollbar-hover);
   background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-corner {
   background: transparent;
-}
-
-[data-theme="dark"] {
-  scrollbar-color: rgba(169, 178, 187, 0.25) transparent;
-}
-
-[data-theme="dark"] *,
-[data-theme="dark"] *::before,
-[data-theme="dark"] *::after {
-  scrollbar-color: rgba(169, 178, 187, 0.25) transparent;
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb {
-  background: rgba(169, 178, 187, 0.25);
-  background-clip: padding-box;
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-  background: rgba(169, 178, 187, 0.5);
-  background-clip: padding-box;
-}
-
-[data-theme="velvet"] {
-  scrollbar-color: rgba(232, 63, 91, 0.28) transparent;
-}
-
-[data-theme="velvet"] *,
-[data-theme="velvet"] *::before,
-[data-theme="velvet"] *::after {
-  scrollbar-color: rgba(232, 63, 91, 0.28) transparent;
-}
-
-[data-theme="velvet"] ::-webkit-scrollbar-thumb {
-  background: rgba(232, 63, 91, 0.28);
-  background-clip: padding-box;
-}
-
-[data-theme="velvet"] ::-webkit-scrollbar-thumb:hover {
-  background: rgba(232, 63, 91, 0.5);
-  background-clip: padding-box;
 }
 
 /* Capacitor iOS shell: hide scrollbars entirely. Styling
@@ -649,16 +954,29 @@ body {
 
 /* Idle — gentle 4.5s breathing scale, mirroring macOS startBreathing(). */
 @keyframes voice-avatar-idle-breathe {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.03); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
 }
 
 /* Idle — faint invitation ring that swells and fades, inviting the user to
  * speak without the urgency of the listening sonar. */
 @keyframes voice-avatar-invite-ring {
-  0% { opacity: 0; transform: scale(0.96); }
-  50% { opacity: 0.35; }
-  100% { opacity: 0; transform: scale(1.12); }
+  0% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.12);
+  }
 }
 
 .voice-avatar--idle {
@@ -675,8 +993,13 @@ body {
  * carried by the top-edge waves coming in (see voice-listening-waves.tsx), not by
  * the avatar reacting to mic amplitude. */
 @keyframes voice-avatar-soft-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
 }
 
 .voice-avatar--listening {
@@ -686,8 +1009,13 @@ body {
 /* Thinking — "stillness with intent": a slow brightness/saturation cycle on
  * the avatar itself. Deliberately NOT a spinner. */
 @keyframes voice-avatar-think-glow {
-  0%, 100% { filter: brightness(1) saturate(1); }
-  50% { filter: brightness(1.12) saturate(1.35); }
+  0%,
+  100% {
+    filter: brightness(1) saturate(1);
+  }
+  50% {
+    filter: brightness(1.12) saturate(1.35);
+  }
 }
 
 .voice-avatar--thinking {
@@ -699,8 +1027,13 @@ body {
  * rides live TTS-output amplitude via `--voice-amp`. Energy going *out*, the
  * counterpart to listening's waves coming in. */
 @keyframes voice-avatar-respond-bounce {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.03); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
 }
 
 .voice-avatar--responding {
@@ -711,8 +1044,14 @@ body {
  * "emanating" motion); its color intensity scales with `--voice-amp` so louder
  * speech radiates more strongly, and it fades to nothing in the gaps. */
 @keyframes voice-avatar-emanate {
-  0% { opacity: 0.75; transform: scale(0.92); }
-  100% { opacity: 0; transform: scale(1.55); }
+  0% {
+    opacity: 0.75;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.55);
+  }
 }
 
 .voice-avatar--responding::after {
@@ -728,8 +1067,15 @@ body {
 /* Reconnecting — dimmed, slow pulse, distinct from idle-breathe (full opacity)
  * and think-glow (brightens rather than dims). */
 @keyframes voice-avatar-reconnect-pulse {
-  0%, 100% { opacity: 0.45; transform: scale(0.98); }
-  50% { opacity: 0.7; transform: scale(1.01); }
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.01);
+  }
 }
 
 .voice-avatar--reconnecting {
@@ -878,22 +1224,34 @@ body {
 }
 
 /* Palette: aurora = fixed cyan→indigo (matches the listening sonar). */
-.voice-listening-waves--aurora.voice-listening-waves--fill .voice-wave--back path {
+.voice-listening-waves--aurora.voice-listening-waves--fill
+  .voice-wave--back
+  path {
   fill: rgba(99, 102, 241, 0.16);
 }
-.voice-listening-waves--aurora.voice-listening-waves--fill .voice-wave--mid path {
+.voice-listening-waves--aurora.voice-listening-waves--fill
+  .voice-wave--mid
+  path {
   fill: rgba(79, 140, 255, 0.2);
 }
-.voice-listening-waves--aurora.voice-listening-waves--fill .voice-wave--front path {
+.voice-listening-waves--aurora.voice-listening-waves--fill
+  .voice-wave--front
+  path {
   fill: rgba(34, 211, 238, 0.26);
 }
-.voice-listening-waves--aurora.voice-listening-waves--line .voice-wave--back path {
+.voice-listening-waves--aurora.voice-listening-waves--line
+  .voice-wave--back
+  path {
   stroke: rgba(99, 102, 241, 0.5);
 }
-.voice-listening-waves--aurora.voice-listening-waves--line .voice-wave--mid path {
+.voice-listening-waves--aurora.voice-listening-waves--line
+  .voice-wave--mid
+  path {
   stroke: rgba(79, 140, 255, 0.62);
 }
-.voice-listening-waves--aurora.voice-listening-waves--line .voice-wave--front path {
+.voice-listening-waves--aurora.voice-listening-waves--line
+  .voice-wave--front
+  path {
   stroke: rgba(34, 211, 238, 0.78);
 }
 
@@ -908,27 +1266,39 @@ body {
 .voice-listening-waves--accent {
   --wave-accent: var(--avatar-accent, #6366f1);
 }
-.voice-listening-waves--accent.voice-listening-waves--fill .voice-wave--back path {
+.voice-listening-waves--accent.voice-listening-waves--fill
+  .voice-wave--back
+  path {
   fill: rgba(99, 102, 241, 0.16);
   fill: color-mix(in srgb, var(--wave-accent) 16%, transparent);
 }
-.voice-listening-waves--accent.voice-listening-waves--fill .voice-wave--mid path {
+.voice-listening-waves--accent.voice-listening-waves--fill
+  .voice-wave--mid
+  path {
   fill: rgba(79, 140, 255, 0.2);
   fill: color-mix(in srgb, var(--wave-accent) 24%, transparent);
 }
-.voice-listening-waves--accent.voice-listening-waves--fill .voice-wave--front path {
+.voice-listening-waves--accent.voice-listening-waves--fill
+  .voice-wave--front
+  path {
   fill: rgba(34, 211, 238, 0.26);
   fill: color-mix(in srgb, var(--wave-accent) 34%, transparent);
 }
-.voice-listening-waves--accent.voice-listening-waves--line .voice-wave--back path {
+.voice-listening-waves--accent.voice-listening-waves--line
+  .voice-wave--back
+  path {
   stroke: rgba(99, 102, 241, 0.5);
   stroke: color-mix(in srgb, var(--wave-accent) 50%, transparent);
 }
-.voice-listening-waves--accent.voice-listening-waves--line .voice-wave--mid path {
+.voice-listening-waves--accent.voice-listening-waves--line
+  .voice-wave--mid
+  path {
   stroke: rgba(79, 140, 255, 0.62);
   stroke: color-mix(in srgb, var(--wave-accent) 66%, transparent);
 }
-.voice-listening-waves--accent.voice-listening-waves--line .voice-wave--front path {
+.voice-listening-waves--accent.voice-listening-waves--line
+  .voice-wave--front
+  path {
   stroke: rgba(34, 211, 238, 0.78);
   stroke: color-mix(in srgb, var(--wave-accent) 82%, transparent);
 }
@@ -939,7 +1309,9 @@ body {
 .voice-listening-waves--tone {
   --wave-tone: var(--room-fg, #ffffff);
 }
-.voice-listening-waves--tone.voice-listening-waves--fill .voice-wave--back path {
+.voice-listening-waves--tone.voice-listening-waves--fill
+  .voice-wave--back
+  path {
   fill: rgba(255, 255, 255, 0.1);
   fill: color-mix(in srgb, var(--wave-tone) 12%, transparent);
 }
@@ -947,11 +1319,15 @@ body {
   fill: rgba(255, 255, 255, 0.14);
   fill: color-mix(in srgb, var(--wave-tone) 17%, transparent);
 }
-.voice-listening-waves--tone.voice-listening-waves--fill .voice-wave--front path {
+.voice-listening-waves--tone.voice-listening-waves--fill
+  .voice-wave--front
+  path {
   fill: rgba(255, 255, 255, 0.2);
   fill: color-mix(in srgb, var(--wave-tone) 24%, transparent);
 }
-.voice-listening-waves--tone.voice-listening-waves--line .voice-wave--back path {
+.voice-listening-waves--tone.voice-listening-waves--line
+  .voice-wave--back
+  path {
   stroke: rgba(255, 255, 255, 0.42);
   stroke: color-mix(in srgb, var(--wave-tone) 45%, transparent);
 }
@@ -959,7 +1335,9 @@ body {
   stroke: rgba(255, 255, 255, 0.55);
   stroke: color-mix(in srgb, var(--wave-tone) 58%, transparent);
 }
-.voice-listening-waves--tone.voice-listening-waves--line .voice-wave--front path {
+.voice-listening-waves--tone.voice-listening-waves--line
+  .voice-wave--front
+  path {
   stroke: rgba(255, 255, 255, 0.72);
   stroke: color-mix(in srgb, var(--wave-tone) 75%, transparent);
 }

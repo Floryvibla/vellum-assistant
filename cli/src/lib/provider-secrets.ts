@@ -93,7 +93,7 @@ export function resolveHatchProvider(
   configValues: Record<string, string | undefined>,
 ): LlmProviderId | null {
   const provider = (
-    resolveConfiguredMainAgentProvider(configValues) || "anthropic"
+    resolveConfiguredMainAgentProvider(configValues) || "openrouter"
   ).toLowerCase();
 
   if (provider === "ollama") {
