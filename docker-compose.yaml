@@ -1,0 +1,89 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: deploy/coolify/web.Dockerfile
+    depends_on:
+      - gateway
+    expose:
+      - "80"
+
+  assistant:
+    build:
+      context: .
+      dockerfile: assistant/Dockerfile
+    depends_on:
+      - ces
+    privileged: true
+    environment:
+      VELLUM_WORKSPACE_DIR: /workspace
+      RUNTIME_HTTP_HOST: 0.0.0.0
+      RUNTIME_HTTP_PORT: "3001"
+      IS_CONTAINERIZED: "true"
+      CES_CREDENTIAL_URL: http://ces:8090
+      CES_SERVICE_TOKEN: ${CES_SERVICE_TOKEN}
+      GATEWAY_INTERNAL_URL: http://gateway:7830
+      GATEWAY_IPC_SOCKET_DIR: /run/gateway-ipc
+      ASSISTANT_IPC_SOCKET_DIR: /run/assistant-ipc
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    volumes:
+      - workspace:/workspace
+      - ces-bootstrap:/run/ces-bootstrap
+      - gateway-ipc:/run/gateway-ipc
+      - assistant-ipc:/run/assistant-ipc
+      - dockerd-data:/var/lib/docker
+    expose:
+      - "3001"
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    depends_on:
+      - assistant
+      - ces
+    environment:
+      GATEWAY_PORT: "7830"
+      VELLUM_WORKSPACE_DIR: /workspace
+      GATEWAY_SECURITY_DIR: /gateway-security
+      CES_CREDENTIAL_URL: http://ces:8090
+      CES_SERVICE_TOKEN: ${CES_SERVICE_TOKEN}
+      GATEWAY_IPC_SOCKET_DIR: /run/gateway-ipc
+      ASSISTANT_IPC_SOCKET_DIR: /run/assistant-ipc
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
+    volumes:
+      - workspace:/workspace
+      - gateway-security:/gateway-security
+      - gateway-ipc:/run/gateway-ipc
+      - assistant-ipc:/run/assistant-ipc
+    expose:
+      - "7830"
+
+  ces:
+    build:
+      context: .
+      dockerfile: credential-executor/Dockerfile
+    environment:
+      CES_MODE: managed
+      CES_HEALTH_PORT: "8090"
+      VELLUM_WORKSPACE_DIR: /workspace
+      CREDENTIAL_SECURITY_DIR: /ces-security
+      CES_SERVICE_TOKEN: ${CES_SERVICE_TOKEN}
+    volumes:
+      - workspace:/workspace
+      - ces-security:/ces-security
+      - ces-bootstrap:/run/ces-bootstrap
+    expose:
+      - "8090"
+
+volumes:
+  workspace:
+  gateway-security:
+  ces-security:
+  ces-bootstrap:
+  gateway-ipc:
+  assistant-ipc:
+  dockerd-data:
