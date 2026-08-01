@@ -30,6 +30,8 @@ clients/macos/src
 !gateway/**
 !packages/
 !packages/**
+!deploy/
+!deploy/coolify/**
 !skills/
 # Shared category taxonomy: the daemon reads this synchronously to normalize
 # plugin marketplace categories without a remote fetch (see
