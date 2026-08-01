@@ -5,8 +5,9 @@ WORKDIR /app
 
 COPY . .
 
-RUN bun install --frozen-lockfile
-RUN cd clients/web && bun run build
+RUN bun install --frozen-lockfile --ignore-scripts \
+    --filter='./clients/web'
+RUN cd clients/web && bun run openapi-ts && bun run build
 
 FROM nginx:1.27.5-alpine
 
