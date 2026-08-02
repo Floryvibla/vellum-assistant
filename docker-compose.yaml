@@ -22,6 +22,7 @@ services:
       IS_CONTAINERIZED: "true"
       CES_CREDENTIAL_URL: http://ces:8090
       CES_SERVICE_TOKEN: ${CES_SERVICE_TOKEN}
+      ACTOR_TOKEN_SIGNING_KEY: ${ACTOR_TOKEN_SIGNING_KEY}
       GATEWAY_INTERNAL_URL: http://gateway:7830
       GATEWAY_IPC_SOCKET_DIR: /run/gateway-ipc
       ASSISTANT_IPC_SOCKET_DIR: /run/assistant-ipc
@@ -48,6 +49,7 @@ services:
     environment:
       GATEWAY_PORT: "7830"
       IS_CONTAINERIZED: "true"
+      ACTOR_TOKEN_SIGNING_KEY: ${ACTOR_TOKEN_SIGNING_KEY}
       ASSISTANT_HOST: assistant
       RUNTIME_HTTP_PORT: "3001"
       VELLUM_WORKSPACE_DIR: /workspace
