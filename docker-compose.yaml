@@ -41,6 +41,7 @@ services:
     build:
       context: .
       dockerfile: gateway/Dockerfile
+    user: "0:0"
     depends_on:
       - assistant
       - ces
