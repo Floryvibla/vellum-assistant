@@ -47,6 +47,7 @@ function makeRequest(
 beforeEach(() => {
   resetRemoteWebPairingChallengesForTests();
   resetRemoteWebPairingChallengeRateLimiterForTests();
+  delete process.env.IS_CONTAINERIZED;
 });
 
 describe("remote web pairing challenge", () => {
@@ -138,6 +139,22 @@ describe("remote web pairing challenge", () => {
     };
     expect(body.verificationUri).toBe(`${PUBLIC_BASE_URL}/assistant/pair`);
     expect(getRemoteWebPairingChallengeForTests(body.userCode)).toBeDefined();
+  });
+
+  test("creates a challenge through the containerized web edge", async () => {
+    process.env.IS_CONTAINERIZED = "true";
+
+    const res = await handleCreateRemoteWebPairingChallenge(
+      makeRequest({
+        edgeForwarded: true,
+        host: "paired.example.com",
+        publicBaseUrl: PUBLIC_BASE_URL,
+      }),
+      REMOTE_IP,
+      "::ffff:10.0.25.6",
+    );
+
+    expect(res.status).toBe(200);
   });
 
   test("rejects direct non-loopback challenge creation without the edge marker", async () => {
