@@ -3,6 +3,7 @@ import {
   assistantsOauthStartCreate,
 } from "@/generated/api/sdk.gen";
 import type { OAuthConnection } from "@/generated/api/types.gen";
+import { client as daemonClient } from "@/generated/daemon/client.gen";
 import { oauthProvidersGet } from "@/generated/daemon/sdk.gen";
 import type { OauthProvidersGetResponses } from "@/generated/daemon/types.gen";
 import {
@@ -13,6 +14,7 @@ import {
   type OAuthCompletePayload,
 } from "@/lib/auth/oauth-popup";
 import { resolveLocalAssistantPlatformIdentity } from "@/lib/local-platform-identity";
+import { getSelfHostedIngressUrl } from "@/lib/self-hosted/connection";
 import { openUrl, openUrlFinishedListener } from "@/runtime/browser";
 import { isNativePlatform } from "@/runtime/native-auth";
 import {
@@ -56,9 +58,57 @@ const POPUP_CHECK_INTERVAL_MS = 100;
 const CONNECTION_POLL_ATTEMPTS = 8;
 const CONNECTION_POLL_DELAY_MS = 750;
 
+type ManagedConnectStartResponse = {
+  connect_url?: string;
+};
+
+type ManagedConnectPollResponse = {
+  connections?: Array<{
+    id: string;
+    account_label?: string | null;
+    scopes_granted?: string[];
+  }>;
+};
+
+function shouldUseGatewayManagedOAuth(): boolean {
+  return getSelfHostedIngressUrl() !== null;
+}
+
 async function listOAuthConnections(
   assistantId: string,
+  providerKey: string,
 ): Promise<OAuthConnection[]> {
+  if (shouldUseGatewayManagedOAuth()) {
+    const { data, error, response } = await daemonClient.get<
+      { 200: ManagedConnectPollResponse },
+      unknown,
+      false
+    >({
+      url: "/v1/assistants/{assistant_id}/oauth/managed-connect/poll",
+      path: { assistant_id: assistantId },
+      query: { provider: providerKey },
+      throwOnError: false,
+    });
+    if (error || !response?.ok) {
+      throw new Error(
+        extractErrorMessage(
+          error,
+          response,
+          "Failed to load OAuth connections.",
+        ),
+      );
+    }
+    return (data?.connections ?? []).map((connection) => ({
+      id: connection.id,
+      provider: providerKey as OAuthConnection["provider"],
+      status: "ACTIVE",
+      connected: true,
+      account_label: connection.account_label ?? null,
+      scopes_granted: connection.scopes_granted ?? [],
+      expires_at: null,
+    }));
+  }
+
   const { data, error, response } = await assistantsOauthConnectionsList({
     path: { assistant_id: assistantId },
     throwOnError: false,
@@ -82,7 +132,7 @@ async function waitForProviderConnection(
     }
 
     try {
-      const connections = await listOAuthConnections(assistantId);
+      const connections = await listOAuthConnections(assistantId, providerKey);
       const connected = findNewOrChangedProviderConnection(
         connections,
         providerKey,
@@ -126,6 +176,32 @@ async function startManagedOAuth(
   native: boolean,
 ): Promise<string> {
   const redirectAfterConnect = `${routes.account.oauth.popupComplete}?requestId=${requestId}${native ? "&native=1" : ""}`;
+  if (shouldUseGatewayManagedOAuth()) {
+    const { data, error, response } = await daemonClient.post<
+      { 200: ManagedConnectStartResponse },
+      unknown,
+      false
+    >({
+      url: "/v1/assistants/{assistant_id}/oauth/managed-connect/start",
+      path: { assistant_id: assistantId },
+      body: {
+        provider: providerKey,
+        scopes: [],
+        redirect_after_connect: redirectAfterConnect,
+      },
+      headers: { "Content-Type": "application/json" },
+      throwOnError: false,
+    });
+
+    if (error || !data?.connect_url) {
+      throw new Error(
+        extractErrorMessage(error, response, "Failed to start authorization."),
+      );
+    }
+
+    return data.connect_url;
+  }
+
   const { data, error, response } = await assistantsOauthStartCreate({
     path: { assistant_id: assistantId, provider: providerKey },
     body: {
@@ -337,7 +413,9 @@ function runManagedOAuthConnect({
         platformAssistantId =
           await resolveLocalAssistantPlatformIdentity(assistantId);
         baselineSignatures = getProviderConnectionSignatures(
-          await listOAuthConnections(platformAssistantId).catch(() => []),
+          await listOAuthConnections(platformAssistantId, providerKey).catch(
+            () => [],
+          ),
           providerKey,
         );
         const connectUrl = await startManagedOAuth(
