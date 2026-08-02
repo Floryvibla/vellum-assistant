@@ -1,6 +1,7 @@
 import { updatePhoneNumberWebhooks } from "../../calls/twilio-rest.js";
 import {
   getGatewayInternalBaseUrl,
+  getIngressPublicBaseUrlOverride,
   getPlatformAssistantId,
   getPlatformBaseUrl,
 } from "../../config/env.js";
@@ -50,10 +51,12 @@ export function getIngressConfigResult(): {
 
   const raw = loadRawConfig();
   const ingress = (raw?.ingress ?? {}) as Record<string, unknown>;
-  const publicBaseUrl = (ingress.publicBaseUrl as string) ?? "";
+  const overridePublicBaseUrl = getIngressPublicBaseUrlOverride();
+  const publicBaseUrl =
+    overridePublicBaseUrl ?? (ingress.publicBaseUrl as string) ?? "";
   const enabled = (ingress.enabled as boolean | undefined) ?? false;
   return {
-    enabled,
+    enabled: overridePublicBaseUrl ? true : enabled,
     publicBaseUrl,
     localGatewayTarget: computeGatewayTarget(),
     managedCallbacks: false,

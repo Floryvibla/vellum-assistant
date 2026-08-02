@@ -50,11 +50,46 @@ describe("IngressConfigSchema", () => {
 
 describe("getPublicBaseUrl", () => {
   beforeEach(() => {
+    process.env.INGRESS_PUBLIC_BASE_URL = undefined;
     setIngressPublicBaseUrl(undefined);
   });
 
   afterEach(() => {
+    process.env.INGRESS_PUBLIC_BASE_URL = undefined;
     setIngressPublicBaseUrl(undefined);
+  });
+
+  test("prefers INGRESS_PUBLIC_BASE_URL over config and module state", () => {
+    process.env.INGRESS_PUBLIC_BASE_URL = "https://override.example.com/";
+    setIngressPublicBaseUrl("https://runtime.example.com");
+
+    const result = getPublicBaseUrl({
+      ingress: { publicBaseUrl: "https://config.example.com" },
+    });
+
+    expect(result).toBe("https://override.example.com");
+  });
+
+  test("prefers INGRESS_PUBLIC_BASE_URL even when ingress is disabled in config", () => {
+    process.env.INGRESS_PUBLIC_BASE_URL = "https://override.example.com/";
+
+    const result = getPublicBaseUrl({
+      ingress: {
+        enabled: false,
+        publicBaseUrl: "https://config.example.com",
+      },
+    });
+
+    expect(result).toBe("https://override.example.com");
+  });
+
+  test("ignores whitespace-only INGRESS_PUBLIC_BASE_URL", () => {
+    process.env.INGRESS_PUBLIC_BASE_URL = "   ";
+    setIngressPublicBaseUrl("https://runtime.example.com");
+
+    const result = getPublicBaseUrl({});
+
+    expect(result).toBe("https://runtime.example.com");
   });
 
   test("returns ingress.publicBaseUrl when set", () => {
@@ -83,11 +118,15 @@ describe("getPublicBaseUrl", () => {
       getPublicBaseUrl({
         ingress: { publicBaseUrl: "" },
       }),
-    ).toThrow(/No public base URL configured/);
+    ).toThrow(
+      /No public base URL configured\. Set INGRESS_PUBLIC_BASE_URL or ingress\.publicBaseUrl in config\./,
+    );
   });
 
   test("throws when all sources are undefined", () => {
-    expect(() => getPublicBaseUrl({})).toThrow(/No public base URL configured/);
+    expect(() => getPublicBaseUrl({})).toThrow(
+      /No public base URL configured\. Set INGRESS_PUBLIC_BASE_URL or ingress\.publicBaseUrl in config\./,
+    );
   });
 
   test("throws when ingress is explicitly disabled", () => {

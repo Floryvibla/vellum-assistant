@@ -69,6 +69,17 @@ export function getGatewayInternalBaseUrl(): string {
 
 let _ingressPublicBaseUrl: string | undefined;
 
+/**
+ * Explicit public ingress URL override for self-hosted deployments.
+ *
+ * This is useful in containerized production setups where the canonical public
+ * domain is injected by the orchestrator and should override any stale
+ * workspace config written by local tunnel workflows.
+ */
+export function getIngressPublicBaseUrlOverride(): string | undefined {
+  return str("INGRESS_PUBLIC_BASE_URL");
+}
+
 /** Read the ingress public base URL (module-level state, mutated at runtime by config handlers). */
 export function getIngressPublicBaseUrl(): string | undefined {
   return _ingressPublicBaseUrl;

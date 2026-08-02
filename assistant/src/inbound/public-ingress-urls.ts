@@ -3,15 +3,18 @@
  *
  * ## Source-of-truth precedence
  *
- * The canonical public base URL is resolved through a two-level chain:
+ * The canonical public base URL is resolved through a three-level chain:
  *
- *   1. **User Settings** (`config.ingress.publicBaseUrl`) — set via
- *      the in-chat config flow, the Settings UI, or `config set ingress.publicBaseUrl`. This is the
- *      primary source of truth. When the assistant spawns or restarts
- *      the gateway, the workspace config file is read so both processes
- *      agree on the same URL.
+ *   1. **Environment override** (`INGRESS_PUBLIC_BASE_URL`) — intended for
+ *      self-hosted/containerized deployments where the public domain is owned
+ *      by the orchestrator and should override any stale workspace config.
  *
- *   2. **Module-level state** (`getIngressPublicBaseUrl()`) — serves as a
+ *   2. **User Settings** (`config.ingress.publicBaseUrl`) — set via
+ *      the in-chat config flow, the Settings UI, or `config set ingress.publicBaseUrl`.
+ *      When the assistant spawns or restarts the gateway, the workspace config
+ *      file is read so both processes agree on the same URL.
+ *
+ *   3. **Module-level state** (`getIngressPublicBaseUrl()`) — serves as a
  *      fallback for operational use (e.g. runtime tunnel updates). When
  *      tunnels start or stop, `setIngressPublicBaseUrl()` updates this
  *      value in-process.
@@ -34,7 +37,10 @@ import {
   normalizePublicBaseUrl,
 } from "@vellumai/service-contracts/twilio-ingress";
 
-import { getIngressPublicBaseUrl } from "../config/env.js";
+import {
+  getIngressPublicBaseUrl,
+  getIngressPublicBaseUrlOverride,
+} from "../config/env.js";
 
 export interface IngressConfig {
   ingress?: {
@@ -82,16 +88,28 @@ function assertPublicIngressEnabled(config: IngressConfig): void {
 }
 
 /**
- * Resolve the canonical public base URL using the precedence chain
- * documented at the top of this module.
+ * Resolve the canonical public base URL using the precedence chain documented
+ * at the top of this module.
  *
- * When `ingress.enabled` is explicitly `false`, the public ingress is
- * considered disabled regardless of whether a URL is configured. This
- * allows the user to toggle ingress off without clearing the URL value.
+ * An explicit `INGRESS_PUBLIC_BASE_URL` override wins over workspace config,
+ * including `ingress.enabled === false`, because the deployment environment is
+ * treated as the authoritative ingress owner for self-hosted production setups.
+ *
+ * When no env override is present and `ingress.enabled` is explicitly `false`,
+ * the public ingress is considered disabled regardless of whether a URL is
+ * configured. This allows the user to toggle ingress off without clearing the
+ * URL value.
  *
  * Throws if no source provides a non-empty value or if ingress is disabled.
  */
 export function getPublicBaseUrl(config: IngressConfig): string {
+  const ingressOverrideValue = getIngressPublicBaseUrlOverride();
+  const normalizedIngressOverrideValue =
+    normalizePublicBaseUrl(ingressOverrideValue);
+  if (normalizedIngressOverrideValue) {
+    return normalizedIngressOverrideValue;
+  }
+
   assertPublicIngressEnabled(config);
 
   const ingressValue = config.ingress?.publicBaseUrl;
@@ -107,7 +125,7 @@ export function getPublicBaseUrl(config: IngressConfig): string {
   }
 
   throw new Error(
-    "No public base URL configured. Set ingress.publicBaseUrl in config.",
+    "No public base URL configured. Set INGRESS_PUBLIC_BASE_URL or ingress.publicBaseUrl in config.",
   );
 }
 
