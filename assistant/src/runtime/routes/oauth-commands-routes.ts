@@ -39,6 +39,7 @@ import { VellumPlatformClient } from "../../platform/client.js";
 import { withValidToken } from "../../security/token-manager.js";
 import { matchHostPattern } from "../../tools/credentials/host-pattern-match.js";
 import { getLogger } from "../../util/logger.js";
+import { ACTOR_PRINCIPALS } from "../auth/route-policy.js";
 import { LOCAL_PRINCIPALS } from "../auth/route-policy.js";
 import { BadRequestError, InternalError, NotFoundError } from "./errors.js";
 import type { RouteDefinition, RouteHandlerArgs } from "./types.js";
@@ -1180,7 +1181,7 @@ export const ROUTES: RouteDefinition[] = [
     method: "POST",
     policy: {
       requiredScopes: ["settings.write"],
-      allowedPrincipalTypes: LOCAL_PRINCIPALS,
+      allowedPrincipalTypes: ACTOR_PRINCIPALS,
     },
     summary: "Start managed OAuth connect",
     description:
@@ -1194,7 +1195,7 @@ export const ROUTES: RouteDefinition[] = [
     method: "GET",
     policy: {
       requiredScopes: ["settings.read"],
-      allowedPrincipalTypes: LOCAL_PRINCIPALS,
+      allowedPrincipalTypes: ACTOR_PRINCIPALS,
     },
     summary: "Poll managed OAuth connections",
     description:

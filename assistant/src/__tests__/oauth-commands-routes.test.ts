@@ -155,6 +155,7 @@ mock.module("../security/token-manager.js", () => ({
 }));
 
 import { loadRawConfig } from "../config/loader.js";
+import { ACTOR_PRINCIPALS } from "../runtime/auth/route-policy.js";
 import {
   BadRequestError,
   InternalError,
@@ -879,6 +880,13 @@ describe("POST oauth/request", () => {
 // ---------------------------------------------------------------------------
 
 describe("POST oauth/managed-connect/start", () => {
+  test("allows actor-facing principals", () => {
+    expect(
+      getRoute("POST", "oauth/managed-connect/start").policy
+        ?.allowedPrincipalTypes,
+    ).toEqual(ACTOR_PRINCIPALS);
+  });
+
   test("returns connect_url on platform 200", async () => {
     mockFetchImpl = async () => ({
       ok: true,
@@ -929,6 +937,13 @@ describe("POST oauth/managed-connect/start", () => {
 // ---------------------------------------------------------------------------
 
 describe("GET oauth/managed-connect/poll", () => {
+  test("allows actor-facing principals", () => {
+    expect(
+      getRoute("GET", "oauth/managed-connect/poll").policy
+        ?.allowedPrincipalTypes,
+    ).toEqual(ACTOR_PRINCIPALS);
+  });
+
   test("rejects missing provider", async () => {
     await expect(
       getRoute("GET", "oauth/managed-connect/poll").handler(
