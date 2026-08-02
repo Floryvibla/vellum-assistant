@@ -30,6 +30,7 @@ clients/macos/src
 !credential-executor/**
 !gateway/
 !gateway/**
+!meta/feature-flags/feature-flag-registry.json
 !packages/
 !packages/**
 !deploy/

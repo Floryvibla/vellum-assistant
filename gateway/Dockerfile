@@ -57,6 +57,7 @@ COPY --chown=gateway:gateway packages/service-contracts /app/packages/service-co
 COPY --chown=gateway:gateway packages/slack-text /app/packages/slack-text
 COPY --chown=gateway:gateway packages/twilio-client /app/packages/twilio-client
 COPY --chown=gateway:gateway gateway /app/gateway
+COPY --chown=gateway:gateway meta/feature-flags/feature-flag-registry.json /app/gateway/src/feature-flag-registry.json
 
 RUN mkdir -p /gateway-security && chown gateway:gateway /gateway-security
 
