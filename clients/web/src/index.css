@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 @import "@vellumai/design-library/tokens.css";
 
@@ -11,219 +10,9 @@
  * emission order. */
 @custom-variant native-ios (&:is(:root[data-native-platform="ios"] *));
 
-/* Sovereign Neural Minimal — global token remap for the existing design library. */
-:root,
-[data-theme="light"] {
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-display: "Hanken Grotesk", system-ui, sans-serif;
-  --font-body: "Inter", system-ui, sans-serif;
-  --app-spacing-xs: 4px;
-  --app-spacing-sm: 8px;
-  --app-spacing-md: 12px;
-  --app-spacing-lg: 16px;
-  --app-spacing-xl: 24px;
-  --app-spacing-xxl: 32px;
-  --app-spacing-xxxl: 48px;
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-xxl: 24px;
-  --radius-pill: 9999px;
-  --background: #f9f9f8;
-  --foreground: #191c1c;
-  --surface-base: #f9f9f8;
-  --surface-overlay: #ffffff;
-  --surface-active: #edeeed;
-  --surface-lift: #ffffff;
-  --surface-hover: rgba(0, 53, 53, 0.04);
-  --surface-sunken: #f3f4f3;
-  --surface-container-lowest: #ffffff;
-  --surface-container-low: #f3f4f3;
-  --surface-container: #edeeed;
-  --surface-container-high: #e7e8e7;
-  --surface-container-highest: #e1e3e2;
-  --primary: #003535;
-  --primary-base: #003535;
-  --primary-hover: #0d4d4d;
-  --primary-active: #104f4f;
-  --primary-disabled: #d9dad9;
-  --primary-second-hover: #006a62;
-  --secondary: #006a62;
-  --secondary-fixed: #84f5e8;
-  --secondary-fixed-dim: #66d9cc;
-  --tertiary: #223231;
-  --outline: #707978;
-  --outline-variant: #bfc8c8;
-  --surface-tint: #2e6767;
-  --border-base: #e1e3e2;
-  --border-disabled: #edeeed;
-  --border-element: #bfc8c8;
-  --border-hover: #d9dad9;
-  --border-active: #003535;
-  --border-subtle: #e7e8e7;
-  --content-default: #191c1c;
-  --content-emphasised: #003535;
-  --content-secondary: #404848;
-  --content-tertiary: #707978;
-  --content-quiet: #707978;
-  --content-strong: #003535;
-  --content-faint: #bfc8c8;
-  --content-disabled: #bfc8c8;
-  --content-inset: #ffffff;
-  --system-positive-strong: #006a62;
-  --system-positive-weak: #d6f3ef;
-  --system-negative-strong: #ba1a1a;
-  --system-negative-hover: #93000a;
-  --system-negative-weak: #ffdad6;
-  --system-mid-strong: #8c6a00;
-  --system-mid-weak: #fff1c2;
-  --system-info-strong: #2e6767;
-  --system-info-weak: #d7ecec;
-  --feed-nudge-strong: #006a62;
-  --feed-nudge-weak: #d6f3ef;
-  --feed-digest-strong: #2e6767;
-  --feed-digest-weak: #d7ecec;
-  --feed-thread-strong: #223231;
-  --feed-thread-weak: #d4e6e5;
-  --credits-accent: #006a62;
-  --ring: color-mix(in srgb, #66d9cc 38%, transparent);
-  --border-overlay: #e1e3e2;
-  --ghost-hover: #f3f4f3;
-  --ghost-pressed: #edeeed;
-  --field-bg: color-mix(in srgb, #ffffff 84%, #84f5e8 16%);
-  --field-border: color-mix(in srgb, #bfc8c8 72%, #66d9cc 28%);
-  --tag-bg-neutral: #e1e3e2;
-  --shadow-sm: 0 8px 24px rgba(13, 77, 77, 0.06);
-  --shadow-md: 0 16px 40px rgba(13, 77, 77, 0.08);
-  --shadow-lg: 0 24px 80px rgba(13, 77, 77, 0.12);
-  --shadow-popover:
-    0 24px 80px rgba(13, 77, 77, 0.12), 0 8px 24px rgba(13, 77, 77, 0.08);
-  --sovereign-glass: rgba(255, 255, 255, 0.72);
-  --sovereign-scrollbar: rgba(64, 72, 72, 0.26);
-  --sovereign-scrollbar-hover: rgba(0, 53, 53, 0.42);
-}
-
-[data-theme="dark"],
-[data-theme="velvet"] {
-  --background: #0f1717;
-  --foreground: #f0f1f0;
-  --surface-base: #0f1717;
-  --surface-overlay: #182120;
-  --surface-active: #223231;
-  --surface-lift: #16201f;
-  --surface-hover: rgba(152, 209, 208, 0.08);
-  --surface-sunken: #101918;
-  --surface-container-lowest: #16201f;
-  --surface-container-low: #182423;
-  --surface-container: #1d2b2a;
-  --surface-container-high: #223231;
-  --surface-container-highest: #2a3b3a;
-  --primary: #98d1d0;
-  --primary-base: #0d4d4d;
-  --primary-hover: #156060;
-  --primary-active: #223231;
-  --primary-disabled: #2a3b3a;
-  --primary-second-hover: #84f5e8;
-  --secondary: #66d9cc;
-  --secondary-fixed: #84f5e8;
-  --secondary-fixed-dim: #66d9cc;
-  --tertiary: #b8cac9;
-  --outline: #6f8382;
-  --outline-variant: #324544;
-  --surface-tint: #98d1d0;
-  --border-base: #243534;
-  --border-disabled: #1b2625;
-  --border-element: #3f5a58;
-  --border-hover: #324544;
-  --border-active: #98d1d0;
-  --border-subtle: #223231;
-  --content-default: #f0f1f0;
-  --content-emphasised: #ffffff;
-  --content-secondary: #c4d2d1;
-  --content-tertiary: #9cb0af;
-  --content-quiet: #9cb0af;
-  --content-strong: #ffffff;
-  --content-faint: #6f8382;
-  --content-disabled: #58706e;
-  --content-inset: #0f1717;
-  --system-positive-strong: #66d9cc;
-  --system-positive-weak: #123736;
-  --system-negative-strong: #ffb4ab;
-  --system-negative-hover: #ffdad6;
-  --system-negative-weak: #5c1b1b;
-  --system-mid-strong: #f0cf70;
-  --system-mid-weak: #4b3e16;
-  --system-info-strong: #98d1d0;
-  --system-info-weak: #183938;
-  --feed-nudge-strong: #84f5e8;
-  --feed-nudge-weak: #123736;
-  --feed-digest-strong: #98d1d0;
-  --feed-digest-weak: #183938;
-  --feed-thread-strong: #d4e6e5;
-  --feed-thread-weak: #223231;
-  --credits-accent: #66d9cc;
-  --ring: color-mix(in srgb, #66d9cc 42%, transparent);
-  --border-overlay: #324544;
-  --ghost-hover: #1d2b2a;
-  --ghost-pressed: #223231;
-  --field-bg: color-mix(in srgb, #16201f 86%, #84f5e8 14%);
-  --field-border: color-mix(in srgb, #3f5a58 72%, #66d9cc 28%);
-  --tag-bg-neutral: #223231;
-  --shadow-sm: 0 12px 32px rgba(0, 0, 0, 0.22);
-  --shadow-md: 0 24px 56px rgba(0, 0, 0, 0.28);
-  --shadow-lg: 0 32px 96px rgba(0, 0, 0, 0.34);
-  --shadow-popover:
-    0 24px 80px rgba(0, 0, 0, 0.36), 0 12px 32px rgba(0, 0, 0, 0.24);
-  --sovereign-glass: rgba(22, 32, 31, 0.78);
-  --sovereign-scrollbar: rgba(152, 209, 208, 0.18);
-  --sovereign-scrollbar-hover: rgba(132, 245, 232, 0.34);
-}
-
-html {
-  background: var(--background);
-}
-
 /* Base element styles — theme-aware defaults inherited by all descendants. */
 body {
   color: var(--content-default);
-  background-color: var(--background);
-  background-image:
-    radial-gradient(
-      circle at 16% 14%,
-      color-mix(in srgb, var(--secondary-fixed-dim) 20%, transparent) 0%,
-      transparent 28%
-    ),
-    radial-gradient(
-      circle at 82% 10%,
-      color-mix(in srgb, var(--surface-tint) 18%, transparent) 0%,
-      transparent 24%
-    ),
-    linear-gradient(
-      180deg,
-      var(--background) 0%,
-      var(--surface-container-lowest) 100%
-    );
-  font-family: var(--font-body);
-  min-height: 100vh;
-  overflow-x: hidden;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-}
-
-#root {
-  min-height: 100vh;
-}
-
-:focus-visible {
-  outline: 2px solid
-    color-mix(in srgb, var(--secondary-fixed-dim) 65%, transparent);
-  outline-offset: 2px;
-}
-
-::selection {
-  background: color-mix(in srgb, var(--secondary-fixed-dim) 28%, transparent);
-  color: var(--content-emphasised);
 }
 
 /* Electron prechat onboarding typography — mirror the lighter DM Sans (Swift
@@ -838,14 +627,14 @@ body {
  * on <html>. */
 :root {
   scrollbar-width: thin;
-  scrollbar-color: var(--sovereign-scrollbar) transparent;
+  scrollbar-color: rgba(113, 128, 142, 0.35) transparent;
 }
 
 :root *,
 :root *::before,
 :root *::after {
   scrollbar-width: thin;
-  scrollbar-color: var(--sovereign-scrollbar) transparent;
+  scrollbar-color: rgba(113, 128, 142, 0.35) transparent;
 }
 
 ::-webkit-scrollbar {
@@ -858,19 +647,59 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--sovereign-scrollbar);
+  background: rgba(113, 128, 142, 0.35);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--sovereign-scrollbar-hover);
+  background: rgba(113, 128, 142, 0.6);
   background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-corner {
   background: transparent;
+}
+
+[data-theme="dark"] {
+  scrollbar-color: rgba(169, 178, 187, 0.25) transparent;
+}
+
+[data-theme="dark"] *,
+[data-theme="dark"] *::before,
+[data-theme="dark"] *::after {
+  scrollbar-color: rgba(169, 178, 187, 0.25) transparent;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: rgba(169, 178, 187, 0.25);
+  background-clip: padding-box;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(169, 178, 187, 0.5);
+  background-clip: padding-box;
+}
+
+[data-theme="velvet"] {
+  scrollbar-color: rgba(232, 63, 91, 0.28) transparent;
+}
+
+[data-theme="velvet"] *,
+[data-theme="velvet"] *::before,
+[data-theme="velvet"] *::after {
+  scrollbar-color: rgba(232, 63, 91, 0.28) transparent;
+}
+
+[data-theme="velvet"] ::-webkit-scrollbar-thumb {
+  background: rgba(232, 63, 91, 0.28);
+  background-clip: padding-box;
+}
+
+[data-theme="velvet"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(232, 63, 91, 0.5);
+  background-clip: padding-box;
 }
 
 /* Capacitor iOS shell: hide scrollbars entirely. Styling
