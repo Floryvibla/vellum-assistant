@@ -13,6 +13,7 @@ import {
   oauthCompletionStorageKey,
   type OAuthCompletePayload,
 } from "@/lib/auth/oauth-popup";
+import { isRemoteGatewayMode } from "@/lib/local-mode";
 import { resolveLocalAssistantPlatformIdentity } from "@/lib/local-platform-identity";
 import { getSelfHostedIngressUrl } from "@/lib/self-hosted/connection";
 import { openUrl, openUrlFinishedListener } from "@/runtime/browser";
@@ -71,7 +72,7 @@ type ManagedConnectPollResponse = {
 };
 
 function shouldUseGatewayManagedOAuth(): boolean {
-  return getSelfHostedIngressUrl() !== null;
+  return isRemoteGatewayMode() || getSelfHostedIngressUrl() !== null;
 }
 
 async function listOAuthConnections(

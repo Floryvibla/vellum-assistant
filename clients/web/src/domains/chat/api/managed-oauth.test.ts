@@ -12,20 +12,44 @@ import { beforeEach, describe, expect, mock, test } from "bun:test";
 
 import { oauthCompletionStorageKey } from "@/lib/auth/oauth-popup";
 
+const assistantsOauthStartCreateMock = mock(async () => ({
+  data: {
+    connect_url:
+      "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=x&redirect_uri=y",
+  },
+  error: null,
+  response: new Response(),
+}));
+const assistantsOauthConnectionsListMock = mock(async () => ({
+  data: [],
+  error: null,
+  response: new Response(),
+}));
+const daemonPostMock = mock(async () => ({
+  data: {
+    connect_url:
+      "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=x&redirect_uri=y",
+  },
+  error: null,
+  response: new Response(),
+}));
+const daemonGetMock = mock(async () => ({
+  data: { connections: [] },
+  error: null,
+  response: new Response(),
+}));
+const getSelfHostedIngressUrlMock = mock(() => null);
+const isRemoteGatewayModeMock = mock(() => false);
+
 mock.module("@/generated/api/sdk.gen", () => ({
-  assistantsOauthStartCreate: mock(async () => ({
-    data: {
-      connect_url:
-        "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=x&redirect_uri=y",
-    },
-    error: null,
-    response: new Response(),
-  })),
-  assistantsOauthConnectionsList: mock(async () => ({
-    data: [],
-    error: null,
-    response: new Response(),
-  })),
+  assistantsOauthStartCreate: assistantsOauthStartCreateMock,
+  assistantsOauthConnectionsList: assistantsOauthConnectionsListMock,
+}));
+mock.module("@/generated/daemon/client.gen", () => ({
+  client: {
+    post: daemonPostMock,
+    get: daemonGetMock,
+  },
 }));
 mock.module("@/generated/daemon/sdk.gen", () => ({
   oauthProvidersGet: mock(async () => ({
@@ -33,8 +57,14 @@ mock.module("@/generated/daemon/sdk.gen", () => ({
     error: null,
   })),
 }));
+mock.module("@/lib/local-mode", () => ({
+  isRemoteGatewayMode: isRemoteGatewayModeMock,
+}));
 mock.module("@/lib/local-platform-identity", () => ({
   resolveLocalAssistantPlatformIdentity: mock(async (id: string) => id),
+}));
+mock.module("@/lib/self-hosted/connection", () => ({
+  getSelfHostedIngressUrl: getSelfHostedIngressUrlMock,
 }));
 mock.module("@/runtime/native-auth", () => ({
   isNativePlatform: () => false,
@@ -67,6 +97,14 @@ let requestIds: string[];
  * specific in-flight connect via its `storage` completion channel.
  */
 beforeEach(() => {
+  assistantsOauthStartCreateMock.mockClear();
+  assistantsOauthConnectionsListMock.mockClear();
+  daemonPostMock.mockClear();
+  daemonGetMock.mockClear();
+  getSelfHostedIngressUrlMock.mockClear();
+  isRemoteGatewayModeMock.mockClear();
+  getSelfHostedIngressUrlMock.mockImplementation(() => null);
+  isRemoteGatewayModeMock.mockImplementation(() => false);
   requestIds = [];
   let counter = 0;
   globalThis.crypto.randomUUID = (() => {
@@ -147,5 +185,23 @@ describe("connectManagedOAuthProvider dedupe", () => {
     expect(openSpy).toHaveBeenCalledTimes(2);
     settleFailed(requestIds[1]!);
     await second;
+  });
+
+  test("uses daemon managed-connect routes in remote-gateway mode", async () => {
+    isRemoteGatewayModeMock.mockImplementation(() => true);
+
+    const resultPromise = connectManagedOAuthProvider(OPTS);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    settleFailed(requestIds[0]!);
+    const result = await resultPromise;
+
+    expect(result).toEqual({
+      status: "error",
+      message: "Gmail authorization failed: access_denied",
+    });
+    expect(daemonPostMock).toHaveBeenCalledTimes(1);
+    expect(daemonGetMock).toHaveBeenCalledTimes(1);
+    expect(assistantsOauthStartCreateMock).not.toHaveBeenCalled();
+    expect(assistantsOauthConnectionsListMock).not.toHaveBeenCalled();
   });
 });
