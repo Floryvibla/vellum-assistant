@@ -29,6 +29,7 @@ interface IntegrationRowProps {
   description: string | null;
   logoUrl: string | null;
   connection: OAuthConnection | null;
+  connectionKind: "managed" | "your-own" | null;
   platformGate: PlatformGateState;
   onConfigure: () => void;
 }
@@ -49,11 +50,15 @@ export function IntegrationRow({
   description,
   logoUrl,
   connection,
+  connectionKind,
   platformGate,
   onConfigure,
 }: IntegrationRowProps) {
   const queryClient = useQueryClient();
   const isConnected = Boolean(connection?.connected);
+  const showManagedMenu =
+    isConnected && connectionKind === "managed" && platformGate === "full";
+  const showConfigureButton = isConnected && !showManagedMenu;
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmDisableOpen, setConfirmDisableOpen] = useState(false);
@@ -124,7 +129,7 @@ export function IntegrationRow({
               </p>
             )}
           </div>
-          {isConnected && platformGate === "full" ? (
+          {showManagedMenu ? (
             <div className="shrink-0">
               <IntegrationConfigureMenu
                 displayName={displayName}
@@ -144,11 +149,11 @@ export function IntegrationRow({
             </div>
           ) : (
             <Button
-              variant="primary"
+              variant={showConfigureButton ? "outlined" : "primary"}
               onClick={onConfigure}
               className="shrink-0"
             >
-              Enable
+              {showConfigureButton ? "Configure" : "Enable"}
             </Button>
           )}
         </Card.Body>

@@ -11,12 +11,16 @@ import { useNavigate, useSearchParams } from "react-router";
 import { type Assistant, getAssistant } from "@/assistant/api";
 import { IntegrationDetailModal } from "@/domains/settings/components/integration-detail-modal";
 import { IntegrationRow } from "@/domains/settings/components/integration-row";
+import { useByoConnectedProviders } from "@/domains/settings/hooks/use-byo-connected-providers";
 import { McpPage } from "@/domains/settings/mcp/mcp-page";
 import { assistantsOauthConnectionsListOptions } from "@/generated/api/@tanstack/react-query.gen";
 import type { OAuthConnection } from "@/generated/api/types.gen";
 import { oauthProvidersGetOptions } from "@/generated/daemon/@tanstack/react-query.gen";
 import { usePlatformAssistantId } from "@/hooks/use-platform-assistant-id";
-import { usePlatformGate } from "@/hooks/use-platform-gate";
+import {
+  useActiveAssistantIsPlatformHosted,
+  usePlatformGate,
+} from "@/hooks/use-platform-gate";
 import { captureError } from "@/lib/sentry/capture-error";
 import { getLocalSetting, setLocalSetting } from "@/utils/local-settings";
 import { routes } from "@/utils/routes";
@@ -37,6 +41,35 @@ function connectionForProvider(
   providerKey: string,
 ): OAuthConnection | null {
   return connections?.find((c) => c.provider === providerKey) ?? null;
+}
+
+function getProviderConnectionState(
+  connections: OAuthConnection[] | undefined,
+  providerKey: string,
+  byoConnectedProviders: ReadonlySet<string>,
+): {
+  connection: OAuthConnection | null;
+  kind: "managed" | "your-own" | null;
+} {
+  const managedConnection = connectionForProvider(connections, providerKey);
+  if (managedConnection?.connected) {
+    return { connection: managedConnection, kind: "managed" };
+  }
+  if (!byoConnectedProviders.has(providerKey)) {
+    return { connection: null, kind: null };
+  }
+  return {
+    connection: {
+      id: `byo:${providerKey}`,
+      provider: providerKey as OAuthConnection["provider"],
+      status: "ACTIVE" as OAuthConnection["status"],
+      connected: true,
+      account_label: null,
+      scopes_granted: [],
+      expires_at: null,
+    },
+    kind: "your-own",
+  };
 }
 
 function parseIntegrationsTab(value: string | null): IntegrationsTab {
@@ -60,6 +93,7 @@ function IntegrationsPanelInner() {
   const [selectedProviderKey, setSelectedProviderKey] = useState<string | null>(
     null,
   );
+  const isPlatformHosted = useActiveAssistantIsPlatformHosted();
 
   // Hydrate banner dismissal from localStorage on mount.
   useEffect(() => {
@@ -156,6 +190,12 @@ function IntegrationsPanelInner() {
     () => providers?.filter((p) => p.supports_managed_mode) ?? [],
     [providers],
   );
+  const { connectedProviders: byoConnectedProviders, isLoading: byoLoading } =
+    useByoConnectedProviders(
+      assistant?.id ?? "",
+      managedProviders.map((provider) => provider.provider_key),
+      !!assistant && !isPlatformHosted,
+    );
 
   const filteredProviders = useMemo(() => {
     const needle = searchText.trim().toLowerCase();
@@ -176,7 +216,11 @@ function IntegrationsPanelInner() {
     if (selectedFilter !== "all") {
       list = list.filter((provider) => {
         const connected = Boolean(
-          connectionForProvider(connections, provider.provider_key)?.connected,
+          getProviderConnectionState(
+            connections,
+            provider.provider_key,
+            byoConnectedProviders,
+          ).connection?.connected,
         );
         return selectedFilter === "enabled" ? connected : !connected;
       });
@@ -184,10 +228,18 @@ function IntegrationsPanelInner() {
 
     return [...list].sort((a, b) => {
       const aEnabled = Boolean(
-        connectionForProvider(connections, a.provider_key)?.connected,
+        getProviderConnectionState(
+          connections,
+          a.provider_key,
+          byoConnectedProviders,
+        ).connection?.connected,
       );
       const bEnabled = Boolean(
-        connectionForProvider(connections, b.provider_key)?.connected,
+        getProviderConnectionState(
+          connections,
+          b.provider_key,
+          byoConnectedProviders,
+        ).connection?.connected,
       );
       if (aEnabled !== bEnabled) {
         return aEnabled ? -1 : 1;
@@ -196,13 +248,20 @@ function IntegrationsPanelInner() {
       const bName = (b.display_name ?? b.provider_key).toLowerCase();
       return aName.localeCompare(bName);
     });
-  }, [managedProviders, connections, searchText, selectedFilter]);
+  }, [
+    managedProviders,
+    connections,
+    searchText,
+    selectedFilter,
+    byoConnectedProviders,
+  ]);
 
   const loading =
     assistantLoading ||
     providersLoading ||
     connectionsLoading ||
-    platformAssistantIdLoading;
+    platformAssistantIdLoading ||
+    byoLoading;
   const selectedFilterLabel =
     FILTER_OPTIONS.find((o) => o.value === selectedFilter)?.label ?? "All";
 
@@ -338,24 +397,29 @@ function IntegrationsPanelInner() {
           </div>
         ) : (
           <div className="space-y-2">
-            {filteredProviders.map((provider) => (
-              <IntegrationRow
-                key={provider.provider_key}
-                platformAssistantId={platformAssistantId ?? assistant.id}
-                providerKey={provider.provider_key}
-                displayName={provider.display_name ?? provider.provider_key}
-                description={provider.description}
-                logoUrl={provider.logo_url}
-                connection={connectionForProvider(
-                  connections,
-                  provider.provider_key,
-                )}
-                platformGate={platformGate}
-                onConfigure={() =>
-                  setSelectedProviderKey(provider.provider_key)
-                }
-              />
-            ))}
+            {filteredProviders.map((provider) => {
+              const connectionState = getProviderConnectionState(
+                connections,
+                provider.provider_key,
+                byoConnectedProviders,
+              );
+              return (
+                <IntegrationRow
+                  key={provider.provider_key}
+                  platformAssistantId={platformAssistantId ?? assistant.id}
+                  providerKey={provider.provider_key}
+                  displayName={provider.display_name ?? provider.provider_key}
+                  description={provider.description}
+                  logoUrl={provider.logo_url}
+                  connection={connectionState.connection}
+                  connectionKind={connectionState.kind}
+                  platformGate={platformGate}
+                  onConfigure={() =>
+                    setSelectedProviderKey(provider.provider_key)
+                  }
+                />
+              );
+            })}
           </div>
         )}
       </div>

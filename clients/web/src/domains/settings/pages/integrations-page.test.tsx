@@ -5,6 +5,10 @@ import { cleanup, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
 
+const integrationRowMock = mock((props: Record<string, unknown>) => (
+  <div>{JSON.stringify(props)}</div>
+));
+
 mock.module("@/assistant/api", () => ({
   getAssistant: mock(async () => ({
     ok: true,
@@ -15,14 +19,24 @@ mock.module("@/assistant/api", () => ({
 mock.module("@/generated/daemon/@tanstack/react-query.gen", () => ({
   oauthProvidersGetOptions: () => ({
     queryKey: ["oauth-providers"],
-    queryFn: async () => ({ providers: [] }),
+    queryFn: async () => ({
+      providers: [
+        {
+          provider_key: "notion",
+          display_name: "Notion",
+          description: "Pages and databases",
+          logo_url: null,
+          supports_managed_mode: true,
+        },
+      ],
+    }),
   }),
 }));
 
 mock.module("@/generated/api/@tanstack/react-query.gen", () => ({
   assistantsOauthConnectionsListOptions: () => ({
     queryKey: ["oauth-connections"],
-    queryFn: async () => ({ results: [] }),
+    queryFn: async () => [],
   }),
 }));
 
@@ -35,10 +49,18 @@ mock.module("@/hooks/use-platform-assistant-id", () => ({
 
 mock.module("@/hooks/use-platform-gate", () => ({
   usePlatformGate: () => "full",
+  useActiveAssistantIsPlatformHosted: () => false,
 }));
 
 mock.module("@/lib/sentry/capture-error", () => ({
   captureError: () => {},
+}));
+
+mock.module("@/domains/settings/hooks/use-byo-connected-providers", () => ({
+  useByoConnectedProviders: () => ({
+    connectedProviders: new Set(["notion"]),
+    isLoading: false,
+  }),
 }));
 
 mock.module("@/domains/settings/components/integration-detail-modal", () => ({
@@ -46,7 +68,7 @@ mock.module("@/domains/settings/components/integration-detail-modal", () => ({
 }));
 
 mock.module("@/domains/settings/components/integration-row", () => ({
-  IntegrationRow: () => <div>Integration row</div>,
+  IntegrationRow: integrationRowMock,
 }));
 
 mock.module("@/domains/settings/mcp/mcp-page", () => ({
@@ -74,6 +96,7 @@ function Wrapper({
 
 afterEach(() => {
   cleanup();
+  integrationRowMock.mockClear();
 });
 
 describe("IntegrationsPage", () => {
@@ -100,5 +123,17 @@ describe("IntegrationsPage", () => {
     });
 
     expect(screen.getByText("MCP tab content")).not.toBeNull();
+  });
+
+  test("passes your-own connection state to the integration row", async () => {
+    render(<IntegrationsPage />, {
+      wrapper: ({ children }) => <Wrapper>{children}</Wrapper>,
+    });
+
+    const notionRow = await screen.findByText((content) =>
+      content.includes('"providerKey":"notion"'),
+    );
+    expect(notionRow.textContent).toContain('"connectionKind":"your-own"');
+    expect(notionRow.textContent).toContain('"connected":true');
   });
 });
