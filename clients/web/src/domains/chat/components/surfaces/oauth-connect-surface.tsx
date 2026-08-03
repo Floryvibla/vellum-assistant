@@ -11,8 +11,8 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 import { IntegrationIcon } from "@/components/integrations/integration-icon";
+import { defaultOAuthConnectClient } from "@/domains/chat/api/oauth-connect";
 import {
-  defaultManagedOAuthConnectClient,
   type ManagedOAuthConnectClient,
   type ManagedOAuthProviderSummary,
 } from "@/domains/chat/api/managed-oauth";
@@ -98,7 +98,7 @@ export function OAuthConnectSurface({
   onAction,
   assistantId,
   assistantDisplayName,
-  oauthClient = defaultManagedOAuthConnectClient,
+  oauthClient = defaultOAuthConnectClient,
 }: OAuthConnectSurfaceProps) {
   const queryClient = useQueryClient();
   // The wire keeps surface `data` opaque; narrow it with the canonical schema

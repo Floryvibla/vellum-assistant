@@ -7,17 +7,6 @@
 
 import { readFileSync } from "node:fs";
 
-import {
-  getConfig,
-  loadRawConfig,
-  saveRawConfig,
-  setNestedValue,
-} from "../../config/loader.js";
-import {
-  getServiceMode,
-  type Services,
-  ServicesSchema,
-} from "../../config/schemas/services.js";
 import type { OAuthConnectionRequest } from "../../oauth/connection.js";
 import {
   resolveOAuthConnection,
@@ -35,6 +24,12 @@ import {
   listConnections,
   type OAuthProviderRow,
 } from "../../oauth/oauth-store.js";
+import {
+  getManagedServiceConfigKey,
+  getOAuthProviderMode,
+  isManagedOAuthMode,
+  setOAuthProviderMode,
+} from "../../oauth/provider-mode.js";
 import { VellumPlatformClient } from "../../platform/client.js";
 import { withValidToken } from "../../security/token-manager.js";
 import { matchHostPattern } from "../../tools/credentials/host-pattern-match.js";
@@ -55,28 +50,6 @@ interface PlatformConnectionEntry {
   account_label?: string;
   scopes_granted?: string[];
   status?: string;
-}
-
-function getManagedServiceConfigKey(provider: string): string | null {
-  const providerRow = getProvider(provider);
-  const managedKey = providerRow?.managedServiceConfigKey;
-  if (!managedKey || !(managedKey in ServicesSchema.shape)) {
-    return null;
-  }
-  return managedKey;
-}
-
-function isManagedMode(provider: string): boolean {
-  const managedKey = getManagedServiceConfigKey(provider);
-  if (!managedKey) {
-    return false;
-  }
-  try {
-    const services: Services = getConfig().services;
-    return getServiceMode(services, managedKey as keyof Services) === "managed";
-  } catch {
-    return false;
-  }
 }
 
 async function requirePlatformClient(): Promise<VellumPlatformClient> {
@@ -188,6 +161,31 @@ function getAllowedRequestHostPatterns(
   return [...new Set(patterns)];
 }
 
+async function buildByoStatus(provider: string, providerRow: OAuthProviderRow) {
+  if (providerRow.authorizeUrl === "urn:manual-token") {
+    await syncManualTokenConnection(provider);
+  }
+  const connections = listConnections(provider)
+    .filter((row) => row.status === "active")
+    .map((row) => {
+      let grantedScopes: string[] = [];
+      try {
+        grantedScopes = row.grantedScopes ? JSON.parse(row.grantedScopes) : [];
+      } catch {
+        // Malformed JSON — default to empty
+      }
+      return {
+        id: row.id,
+        account: row.accountInfo ?? null,
+        grantedScopes,
+        expiresAt: row.expiresAt ? new Date(row.expiresAt).toISOString() : null,
+        hasRefreshToken: row.hasRefreshToken === 1,
+        status: row.status,
+      };
+    });
+  return { ok: true, provider, mode: "byo", connections };
+}
+
 function assertOAuthRequestUrlAllowed(
   providerRow: OAuthProviderRow,
   parsedUrl: URL,
@@ -248,7 +246,7 @@ async function handleDisconnect({ body = {} }: RouteHandlerArgs) {
     );
   }
 
-  const managed = isManagedMode(b.provider);
+  const managed = isManagedOAuthMode(b.provider);
 
   if (managed) {
     const client = await requirePlatformClient();
@@ -403,13 +401,10 @@ function handleModeGet({ queryParams = {} }: RouteHandlerArgs) {
     };
   }
 
-  const services: Services = getConfig().services;
-  const currentMode = getServiceMode(services, managedKey as keyof Services);
-
   return {
     ok: true,
     provider,
-    mode: currentMode,
+    mode: getOAuthProviderMode(provider),
     managedModeSupported: true,
   };
 }
@@ -463,8 +458,7 @@ async function handleModeSet({ body = {} }: RouteHandlerArgs) {
     }
   }
 
-  const services: Services = getConfig().services;
-  const currentMode = getServiceMode(services, managedKey as keyof Services);
+  const currentMode = getOAuthProviderMode(b.provider);
 
   if (currentMode === b.mode) {
     return {
@@ -476,9 +470,7 @@ async function handleModeSet({ body = {} }: RouteHandlerArgs) {
     };
   }
 
-  const raw = loadRawConfig();
-  setNestedValue(raw, `services.${managedKey}.mode`, b.mode);
-  saveRawConfig(raw);
+  setOAuthProviderMode(b.provider, b.mode);
 
   // Best-effort check for active connections on old and new modes
   let oldModeConnections = 0;
@@ -526,59 +518,34 @@ async function handleStatus({ queryParams = {} }: RouteHandlerArgs) {
     );
   }
 
-  const managed = isManagedMode(provider);
+  const managed = isManagedOAuthMode(provider);
 
   if (managed) {
-    const client = await requirePlatformClient();
-    const rawEntries = await fetchActiveConnections(client, provider);
-
-    const connections = rawEntries.map((c) => ({
-      id: c.id,
-      account: c.account_label ?? null,
-      grantedScopes: c.scopes_granted ?? [],
-      status: c.status ?? "ACTIVE",
-    }));
-
-    return {
-      ok: true,
-      provider,
-      mode: "managed",
-      connections,
-    };
-  }
-
-  // BYO path
-  if (providerRow.authorizeUrl === "urn:manual-token") {
-    await syncManualTokenConnection(provider);
-  }
-
-  const allConnections = listConnections(provider);
-  const activeRows = allConnections.filter((r) => r.status === "active");
-
-  const connections = activeRows.map((r) => {
-    let grantedScopes: string[] = [];
     try {
-      grantedScopes = r.grantedScopes ? JSON.parse(r.grantedScopes) : [];
+      const client = await requirePlatformClient();
+      const rawEntries = await fetchActiveConnections(client, provider);
+      if (rawEntries.length > 0) {
+        return {
+          ok: true,
+          provider,
+          mode: "managed",
+          connections: rawEntries.map((entry) => ({
+            id: entry.id,
+            account: entry.account_label ?? null,
+            grantedScopes: entry.scopes_granted ?? [],
+            status: entry.status ?? "ACTIVE",
+          })),
+        };
+      }
     } catch {
-      // Malformed JSON — default to empty
+      // Fall through to any active local BYO connection below.
     }
-
-    return {
-      id: r.id,
-      account: r.accountInfo ?? null,
-      grantedScopes,
-      expiresAt: r.expiresAt ? new Date(r.expiresAt).toISOString() : null,
-      hasRefreshToken: r.hasRefreshToken === 1,
-      status: r.status,
-    };
-  });
-
-  return {
-    ok: true,
-    provider,
-    mode: "byo",
-    connections,
-  };
+    const byoStatus = await buildByoStatus(provider, providerRow);
+    if (byoStatus.connections.length > 0) {
+      return byoStatus;
+    }
+  }
+  return buildByoStatus(provider, providerRow);
 }
 
 // ---------------------------------------------------------------------------
@@ -683,7 +650,7 @@ async function handleToken({ body = {} }: RouteHandlerArgs) {
     throw new BadRequestError("provider is required");
   }
 
-  if (isManagedMode(b.provider)) {
+  if (isManagedOAuthMode(b.provider)) {
     throw new BadRequestError(
       "Token retrieval is not supported for platform-managed providers. " +
         "When a provider is in managed mode, Vellum handles OAuth tokens on your behalf — " +
@@ -780,7 +747,7 @@ async function handleRequest({ body = {} }: RouteHandlerArgs) {
     );
   }
 
-  const managed = isManagedMode(b.provider);
+  const managed = isManagedOAuthMode(b.provider);
 
   if (b.client_id) {
     if (managed) {

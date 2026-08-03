@@ -22,6 +22,7 @@ import {
   listConnections,
   upsertApp,
 } from "../../oauth/oauth-store.js";
+import { setOAuthProviderMode } from "../../oauth/provider-mode.js";
 import { serializeProviderSummary } from "../../oauth/provider-serializer.js";
 import { ACTOR_PRINCIPALS } from "../auth/route-policy.js";
 import { BadRequestError, InternalError, NotFoundError } from "./errors.js";
@@ -56,6 +57,10 @@ function normalizeHasRefreshToken(
   hasRefreshToken: boolean | number | null | undefined,
 ): boolean {
   return hasRefreshToken === true || hasRefreshToken === 1;
+}
+
+function syncProviderToByoMode(provider: string): void {
+  setOAuthProviderMode(provider, "your-own");
 }
 
 // ---------------------------------------------------------------------------
@@ -144,6 +149,7 @@ async function handleUpsertApp({ body = {} }: RouteHandlerArgs) {
       : undefined;
 
   const row = await upsertApp(providerKey, clientId, clientSecretOpts);
+  syncProviderToByoMode(providerKey);
 
   return { app: formatAppRow(row) };
 }
@@ -178,6 +184,7 @@ async function handleCreateApp({ body = {} }: RouteHandlerArgs) {
   const app = await upsertApp(provider_key, client_id, {
     clientSecretValue: client_secret,
   });
+  syncProviderToByoMode(provider_key);
 
   return {
     app: {
@@ -270,6 +277,7 @@ async function handleConnectApp({ pathParams = {}, body }: RouteHandlerArgs) {
     );
   }
 
+  syncProviderToByoMode(app.provider);
   const clientSecret = await getAppClientSecret(app);
 
   const result = await orchestrateOAuthConnect({

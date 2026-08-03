@@ -108,6 +108,12 @@ mock.module("../oauth/connect-orchestrator.js", () => ({
   orchestrateOAuthConnect: mockOrchestrateOAuthConnect,
 }));
 
+const mockSetOAuthProviderMode = mock(() => false);
+
+mock.module("../oauth/provider-mode.js", () => ({
+  setOAuthProviderMode: mockSetOAuthProviderMode,
+}));
+
 import { BadRequestError } from "../runtime/routes/errors.js";
 import { ROUTES } from "../runtime/routes/oauth-apps.js";
 import type { RouteHandlerArgs } from "../runtime/routes/types.js";
@@ -194,6 +200,14 @@ describe("GET /v1/oauth/apps", () => {
 });
 
 describe("POST /v1/oauth/apps/:appId/connect — callback_transport", () => {
+  test("switches the provider to your-own mode before connecting", async () => {
+    mockSetOAuthProviderMode.mockClear();
+    await getRoute("POST", "oauth/apps/:appId/connect").handler(
+      makeArgs({ pathParams: { appId: "app-1" }, body: {} }),
+    );
+    expect(mockSetOAuthProviderMode).toHaveBeenCalledWith("google", "your-own");
+  });
+
   test('callback_transport: "gateway" is accepted and passed through', async () => {
     mockOrchestrateOAuthConnect.mockClear();
     await getRoute("POST", "oauth/apps/:appId/connect").handler(
@@ -272,5 +286,21 @@ describe("POST /v1/oauth/apps/:appId/connect — callback_transport", () => {
       ),
     ).toThrow(BadRequestError);
     expect(mockOrchestrateOAuthConnect).not.toHaveBeenCalled();
+  });
+});
+
+describe("POST /v1/oauth/apps", () => {
+  test("switches the provider to your-own mode after saving the app", async () => {
+    mockSetOAuthProviderMode.mockClear();
+    await getRoute("POST", "oauth/apps").handler(
+      makeArgs({
+        body: {
+          provider_key: "google",
+          client_id: "client-1",
+          client_secret: "secret-1",
+        },
+      }),
+    );
+    expect(mockSetOAuthProviderMode).toHaveBeenCalledWith("google", "your-own");
   });
 });

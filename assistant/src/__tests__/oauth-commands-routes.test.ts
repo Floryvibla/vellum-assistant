@@ -534,6 +534,26 @@ describe("GET oauth/status", () => {
     expect(result.mode).toBe("managed");
     expect(result.connections[0]!.id).toBe("conn-platform");
   });
+
+  test("managed mode falls back to active BYO connections", async () => {
+    seedServiceModes({ "google-oauth": "managed" });
+    platformAvailable = false;
+    mockAllConnections.google = [
+      {
+        id: "conn-local",
+        accountInfo: "alice@example.com",
+        grantedScopes: '["search_content"]',
+        status: "active",
+        hasRefreshToken: 1,
+        expiresAt: null,
+      },
+    ];
+    const result = (await getRoute("GET", "oauth/status").handler(
+      makeArgs({ queryParams: { provider: "google" } }),
+    )) as { mode: string; connections: Array<{ id: string }> };
+    expect(result.mode).toBe("byo");
+    expect(result.connections[0]!.id).toBe("conn-local");
+  });
 });
 
 // ---------------------------------------------------------------------------
