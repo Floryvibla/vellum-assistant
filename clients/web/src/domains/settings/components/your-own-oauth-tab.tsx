@@ -9,7 +9,6 @@ import {
   oauthAppsGetOptions,
   oauthAppsGetQueryKey,
   oauthProvidersByProviderKeyGetOptions,
-  useOauthAppsByAppIdConnectPostMutation,
   useOauthAppsByIdDeleteMutation,
   useOauthAppsPostMutation,
   useOauthConnectionsByIdDeleteMutation,
@@ -19,6 +18,7 @@ import type {
   OauthAppsGetResponses,
 } from "@/generated/daemon/types.gen";
 import { copyToClipboard } from "@/lib/copy-to-clipboard";
+import { useOAuthAppPopupConnect } from "@/domains/settings/hooks/use-oauth-app-popup-connect";
 import { Button } from "@vellumai/design-library/components/button";
 import { Card } from "@vellumai/design-library/components/card";
 import { ConfirmDialog } from "@vellumai/design-library/components/confirm-dialog";
@@ -131,17 +131,6 @@ export function YourOwnTab({
     },
   });
 
-  const connectMutation = useOauthAppsByAppIdConnectPostMutation({
-    onSuccess: (data) => {
-      if ("auth_url" in data) {
-        window.location.href = data.auth_url;
-      }
-    },
-    onError: (err) => {
-      toast.error(err.message || "Failed to start OAuth flow");
-    },
-  });
-
   const disconnectMutation = useOauthConnectionsByIdDeleteMutation();
 
   // --- Ephemeral UI state ---
@@ -162,9 +151,12 @@ export function YourOwnTab({
   const deletingAppId = deleteAppMutation.isPending
     ? (deleteAppMutation.variables?.path?.id ?? null)
     : null;
-  const connectingAppId = connectMutation.isPending
-    ? (connectMutation.variables?.path?.appId ?? null)
-    : null;
+  const { connectingAppId, handleConnect } = useOAuthAppPopupConnect({
+    assistantId,
+    displayName,
+    providerKey,
+    appsQueryKey,
+  });
   const disconnectingId = disconnectMutation.isPending
     ? (disconnectMutation.variables?.path?.id ?? null)
     : null;
@@ -195,13 +187,6 @@ export function YourOwnTab({
     }
     deleteAppMutation.mutate({
       path: { assistant_id: assistantId, id: app.id },
-    });
-  };
-
-  const handleConnect = (app: OAuthApp) => {
-    connectMutation.mutate({
-      path: { assistant_id: assistantId, appId: app.id },
-      body: { callback_transport: "gateway", scopes: [] },
     });
   };
 
@@ -434,7 +419,7 @@ export function YourOwnTab({
               <Button
                 type="button"
                 size="compact"
-                onClick={() => handleConnect(app)}
+                onClick={() => handleConnect(app, connections)}
                 disabled={isConnecting}
                 className="w-full"
                 leftIcon={
