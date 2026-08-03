@@ -25,9 +25,9 @@ mock.module("@/generated/daemon/@tanstack/react-query.gen", () => ({
   useOauthAppsByAppIdConnectPostMutation: () => ({ mutate: connectMutate }),
 }));
 
-const fetchQuery = mock(
-  async (): Promise<MockConnectionQueryResult> => ({ connections: [] }),
-);
+const fetchQuery = mock(async (): Promise<MockConnectionQueryResult> => ({
+  connections: [],
+}));
 const invalidateQueries = mock(async () => {});
 mock.module("@tanstack/react-query", () => ({
   useQueryClient: () => ({ fetchQuery, invalidateQueries }),
@@ -69,7 +69,6 @@ describe("useOAuthAppPopupConnect", () => {
       useOAuthAppPopupConnect({
         assistantId: "assistant-1",
         displayName: "Notion",
-        providerKey: "notion",
         appsQueryKey: ["oauth-apps"],
       }),
     );
@@ -94,7 +93,6 @@ describe("useOAuthAppPopupConnect", () => {
       useOAuthAppPopupConnect({
         assistantId: "assistant-1",
         displayName: "Notion",
-        providerKey: "notion",
         appsQueryKey: ["oauth-apps"],
       }),
     );

@@ -74,6 +74,9 @@ describe("OAuth callback handler", () => {
     const body = await res.text();
     expect(body).toContain("Authorization Successful");
     expect(body).toContain("close this tab");
+    expect(body).toContain("window.opener.postMessage");
+    expect(body).toContain(`"state":"${VALID_STATE}"`);
+    expect(body).toContain("window.close()");
 
     // Verify fetch was called with the runtime internal endpoint
     const calledUrl = (fetchMock.mock.calls[0] as unknown[])[0] as string;

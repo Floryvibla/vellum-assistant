@@ -154,7 +154,6 @@ export function YourOwnTab({
   const { connectingAppId, handleConnect } = useOAuthAppPopupConnect({
     assistantId,
     displayName,
-    providerKey,
     appsQueryKey,
   });
   const disconnectingId = disconnectMutation.isPending

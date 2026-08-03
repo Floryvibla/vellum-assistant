@@ -100,7 +100,7 @@ export function createOAuthCallbackHandler(config: GatewayConfig) {
       );
 
       if (response.status >= 200 && response.status < 300) {
-        return new Response(renderSuccessPage(), {
+        return new Response(renderSuccessPage(state), {
           status: 200,
           headers: { "Content-Type": "text/html" },
         });
@@ -120,7 +120,7 @@ export function createOAuthCallbackHandler(config: GatewayConfig) {
         rollBackConsumedState(state);
       }
       return new Response(
-        renderErrorPage("Authorization failed. Please try again."),
+        renderErrorPage("Authorization failed. Please try again.", state),
         { status: 400, headers: { "Content-Type": "text/html" } },
       );
     } catch (err) {
@@ -128,15 +128,37 @@ export function createOAuthCallbackHandler(config: GatewayConfig) {
       rollBackConsumedState(state);
       log.error({ err }, "Failed to forward OAuth callback to runtime");
       return new Response(
-        renderErrorPage("Authorization failed. Please try again."),
+        renderErrorPage("Authorization failed. Please try again.", state),
         { status: 502, headers: { "Content-Type": "text/html" } },
       );
     }
   };
 }
 
-function renderSuccessPage(): string {
-  return `<!DOCTYPE html><html><head><title>Authorization Successful</title><style>body{font-family:system-ui,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;background:#f5f5f5}div{text-align:center;padding:2rem;background:white;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)}</style></head><body><div><h1>Authorization Successful</h1><p>You can close this tab and return to the app.</p></div></body></html>`;
+function buildCompletionScript(
+  state: string,
+  oauthStatus: "connected" | "failed",
+  oauthCode?: string,
+): string {
+  const payload = JSON.stringify({
+    type: "vellum:oauth-complete",
+    state,
+    oauthStatus,
+    oauthCode: oauthCode ?? null,
+  });
+  return `(() => {
+    const payload = ${payload};
+    try {
+      if (window.opener && !window.opener.closed) {
+        window.opener.postMessage(payload, window.location.origin);
+      }
+    } catch {}
+    window.close();
+  })();`;
+}
+
+function renderSuccessPage(state: string): string {
+  return `<!DOCTYPE html><html><head><title>Authorization Successful</title><style>body{font-family:system-ui,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;background:#f5f5f5}div{text-align:center;padding:2rem;background:white;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)}</style></head><body><div><h1>Authorization Successful</h1><p>You can close this tab and return to the app.</p></div><script>${buildCompletionScript(state, "connected")}</script></body></html>`;
 }
 
 function escapeHtml(s: string): string {
@@ -148,6 +170,9 @@ function escapeHtml(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
-function renderErrorPage(message: string): string {
-  return `<!DOCTYPE html><html><head><title>Authorization Failed</title><style>body{font-family:system-ui,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;background:#f5f5f5}div{text-align:center;padding:2rem;background:white;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)}</style></head><body><div><h1>Authorization Failed</h1><p>${escapeHtml(message)}</p></div></body></html>`;
+function renderErrorPage(message: string, state?: string): string {
+  const script = state
+    ? `<script>${buildCompletionScript(state, "failed", message)}</script>`
+    : "";
+  return `<!DOCTYPE html><html><head><title>Authorization Failed</title><style>body{font-family:system-ui,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;background:#f5f5f5}div{text-align:center;padding:2rem;background:white;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)}</style></head><body><div><h1>Authorization Failed</h1><p>${escapeHtml(message)}</p></div>${script}</body></html>`;
 }

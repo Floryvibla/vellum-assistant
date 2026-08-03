@@ -22,27 +22,30 @@ type OAuthAppConnection =
 interface UseOAuthAppPopupConnectOptions {
   assistantId: string;
   displayName: string;
-  providerKey: string;
   appsQueryKey: readonly unknown[];
 }
 
 interface PendingConnect {
   appId: string;
   baselineConnectionIds: Set<string>;
+  state: string | null;
 }
 
-function isOAuthCompletePayload(value: unknown): value is OAuthCompletePayload {
+interface OAuthPopupMessage extends OAuthCompletePayload {
+  state?: string | null;
+}
+
+function isOAuthCompletePayload(value: unknown): value is OAuthPopupMessage {
   return (
     typeof value === "object" &&
     value !== null &&
-    (value as OAuthCompletePayload).type === "vellum:oauth-complete"
+    (value as OAuthPopupMessage).type === "vellum:oauth-complete"
   );
 }
 
 export function useOAuthAppPopupConnect({
   assistantId,
   displayName,
-  providerKey,
   appsQueryKey,
 }: UseOAuthAppPopupConnectOptions) {
   const queryClient = useQueryClient();
@@ -158,7 +161,10 @@ export function useOAuthAppPopupConnect({
       if (!pendingRef.current || !isOAuthCompletePayload(event.data)) {
         return;
       }
-      if (event.data.oauthProvider !== providerKey) {
+      if (
+        pendingRef.current.state &&
+        event.data.state !== pendingRef.current.state
+      ) {
         return;
       }
       if (event.data.oauthStatus === "connected") {
@@ -175,7 +181,7 @@ export function useOAuthAppPopupConnect({
     };
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [clearPendingState, closePopup, displayName, finishConnect, providerKey]);
+  }, [clearPendingState, closePopup, displayName, finishConnect]);
 
   useEffect(() => {
     return openUrlFinishedListener(() => {
@@ -200,6 +206,7 @@ export function useOAuthAppPopupConnect({
       pendingRef.current = {
         appId: app.id,
         baselineConnectionIds: new Set(connections.map((item) => item.id)),
+        state: null,
       };
       setConnectingAppId(app.id);
       connectionPollInFlightRef.current = false;
@@ -245,6 +252,9 @@ export function useOAuthAppPopupConnect({
             if (!("auth_url" in data)) {
               void finishConnect(`${displayName} connection failed.`);
               return;
+            }
+            if (pendingRef.current?.appId === app.id) {
+              pendingRef.current.state = data.state;
             }
             if (isNative) {
               void openUrl(data.auth_url);
