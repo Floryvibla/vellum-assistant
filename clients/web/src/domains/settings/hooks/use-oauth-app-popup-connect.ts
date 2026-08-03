@@ -52,6 +52,10 @@ export function useOAuthAppPopupConnect({
   const popupCheckIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
     null,
   );
+  const connectionPollIntervalRef = useRef<ReturnType<
+    typeof setInterval
+  > | null>(null);
+  const connectionPollInFlightRef = useRef(false);
   const popupClosedGraceTimeoutRef = useRef<ReturnType<
     typeof setTimeout
   > | null>(null);
@@ -60,6 +64,7 @@ export function useOAuthAppPopupConnect({
 
   const clearPendingState = useCallback(() => {
     pendingRef.current = null;
+    connectionPollInFlightRef.current = false;
     setConnectingAppId(null);
   }, []);
 
@@ -67,6 +72,10 @@ export function useOAuthAppPopupConnect({
     if (popupCheckIntervalRef.current) {
       clearInterval(popupCheckIntervalRef.current);
       popupCheckIntervalRef.current = null;
+    }
+    if (connectionPollIntervalRef.current) {
+      clearInterval(connectionPollIntervalRef.current);
+      connectionPollIntervalRef.current = null;
     }
     if (popupClosedGraceTimeoutRef.current) {
       clearTimeout(popupClosedGraceTimeoutRef.current);
@@ -78,29 +87,34 @@ export function useOAuthAppPopupConnect({
     popupRef.current = null;
   }, []);
 
+  const hasNewConnection = useCallback(
+    async (appId: string, baselineConnectionIds: Set<string>) => {
+      const connections = await queryClient.fetchQuery({
+        ...oauthAppsByAppIdConnectionsGetOptions({
+          path: { assistant_id: assistantId, appId },
+        }),
+        staleTime: 0,
+      });
+      return connections.connections.some(
+        (item) => !baselineConnectionIds.has(item.id),
+      );
+    },
+    [assistantId, queryClient],
+  );
+
   const waitForConnection = useCallback(
     async (appId: string, baselineConnectionIds: Set<string>) => {
       for (let attempt = 0; attempt < 8; attempt += 1) {
         if (attempt > 0) {
           await new Promise((resolve) => setTimeout(resolve, 750));
         }
-        const connections = await queryClient.fetchQuery({
-          ...oauthAppsByAppIdConnectionsGetOptions({
-            path: { assistant_id: assistantId, appId },
-          }),
-          staleTime: 0,
-        });
-        if (
-          connections.connections.some(
-            (item) => !baselineConnectionIds.has(item.id),
-          )
-        ) {
+        if (await hasNewConnection(appId, baselineConnectionIds)) {
           return true;
         }
       }
       return false;
     },
-    [assistantId, queryClient],
+    [hasNewConnection],
   );
 
   const finishConnect = useCallback(
@@ -188,6 +202,7 @@ export function useOAuthAppPopupConnect({
         baselineConnectionIds: new Set(connections.map((item) => item.id)),
       };
       setConnectingAppId(app.id);
+      connectionPollInFlightRef.current = false;
       if (popup) {
         popupCheckIntervalRef.current = setInterval(() => {
           if (
@@ -203,6 +218,22 @@ export function useOAuthAppPopupConnect({
             }, 1000);
           }
         }, 100);
+        connectionPollIntervalRef.current = setInterval(() => {
+          const pending = pendingRef.current;
+          if (!pending || connectionPollInFlightRef.current) {
+            return;
+          }
+          connectionPollInFlightRef.current = true;
+          void hasNewConnection(pending.appId, pending.baselineConnectionIds)
+            .then((connected) => {
+              if (connected && pendingRef.current?.appId === pending.appId) {
+                void finishConnect(`${displayName} connection failed.`, true);
+              }
+            })
+            .finally(() => {
+              connectionPollInFlightRef.current = false;
+            });
+        }, 1000);
       }
       connectMutation.mutate(
         {
@@ -242,6 +273,7 @@ export function useOAuthAppPopupConnect({
       connectMutation,
       displayName,
       finishConnect,
+      hasNewConnection,
       isNative,
     ],
   );

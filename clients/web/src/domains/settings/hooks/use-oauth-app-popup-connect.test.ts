@@ -1,6 +1,10 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, mock, test } from "bun:test";
 
+interface MockConnectionQueryResult {
+  connections: Array<{ id: string }>;
+}
+
 const connectMutate = mock(
   (_vars: unknown, handlers?: { onSuccess?: (data: unknown) => void }) => {
     handlers?.onSuccess?.({
@@ -21,7 +25,9 @@ mock.module("@/generated/daemon/@tanstack/react-query.gen", () => ({
   useOauthAppsByAppIdConnectPostMutation: () => ({ mutate: connectMutate }),
 }));
 
-const fetchQuery = mock(async () => ({ connections: [] }));
+const fetchQuery = mock(
+  async (): Promise<MockConnectionQueryResult> => ({ connections: [] }),
+);
 const invalidateQueries = mock(async () => {});
 mock.module("@tanstack/react-query", () => ({
   useQueryClient: () => ({ fetchQuery, invalidateQueries }),
@@ -77,5 +83,29 @@ describe("useOAuthAppPopupConnect", () => {
       "https://provider.example.com/oauth/start",
     );
     expect(result.current.connectingAppId).toBe("app-1");
+  });
+
+  test("closes the popup after polling detects the new connection", async () => {
+    fetchQuery.mockImplementationOnce(async () => ({
+      connections: [{ id: "conn-1" }],
+    }));
+
+    const { result } = renderHook(() =>
+      useOAuthAppPopupConnect({
+        assistantId: "assistant-1",
+        displayName: "Notion",
+        providerKey: "notion",
+        appsQueryKey: ["oauth-apps"],
+      }),
+    );
+
+    act(() => {
+      result.current.handleConnect({ id: "app-1" } as never, []);
+    });
+
+    await waitFor(() => expect(popupStub.closed).toBe(true), {
+      timeout: 2000,
+    });
+    expect(result.current.connectingAppId).toBeNull();
   });
 });
